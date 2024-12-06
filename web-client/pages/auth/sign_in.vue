@@ -6,7 +6,7 @@ definePageMeta({
   layout: 'auth'
 })
 
-const auth_api = auth();
+const auth = useAuth();
 const config_api = config()
 
 const loading = ref(false);
@@ -47,7 +47,9 @@ const errors = (state: {
   return [];
 };
 
-const onSubmit = (data: {
+
+
+const onSubmit = async (data: {
   readonly email: string | null;
   readonly password: string | null;
 }) => {
@@ -55,10 +57,12 @@ const onSubmit = (data: {
 
   error.value = false;
   loading.value = true;
-  auth_api
-    .sign_in(data)
-    .then(() => { navigateTo('/app/events') }, (error) =>  { error.value = true })
-    .finally(() => (loading.value = false));
+  try {
+    await auth.signIn(data,  { callbackUrl: '/app/events' })
+  }
+  catch(e) {
+    loading.value = false
+  }
 };
 </script>
 
