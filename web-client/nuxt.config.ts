@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@sidebase/nuxt-auth', '@nuxt/ui'],
+  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxt/image'],
   extends: ['@nuxt/ui-pro'],
   runtimeConfig: {
     public: {
@@ -44,4 +44,3 @@ export default defineNuxtConfig({
     },
   },
 });
-
