@@ -2,7 +2,9 @@
   <UHeader />
 
   <UMain>
-    <slot />
+    <ULandingGrid>
+      <slot />
+    </ULandingGrid>
   </UMain>
 
   <UFooter />

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import type { FormError } from '#ui/types';
 import type { SignInRequest } from '~/types/dtos/sign_in';
+import useConfig from '~/composables/useConfig';
 
-definePageMeta({
-  layout: 'auth',
-});
+definePageMeta({ layout: 'auth' });
 
 const auth_api = useAuth();
-const config_api = config();
+const config_api = useConfig();
 
 const loading = ref(false);
 const error = ref(false);

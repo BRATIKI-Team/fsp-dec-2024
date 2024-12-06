@@ -32,7 +32,8 @@ class EventService(BaseService[Event]):
             name=create_event_dto.name,
             discipline=create_event_dto.discipline,
             description=create_event_dto.description,
-            datetime=create_event_dto.datetime
+            datetime=create_event_dto.datetime,
+            is_approved_event=False
         )
         event_id = await super().create(event)
         return event_id is not None
