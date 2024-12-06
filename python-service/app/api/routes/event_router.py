@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.params import Depends, Body
 
 from app.api.dto import Page, SearchReq
-from app.api.dto.event_dto import CreateEventReq
+from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
 from app.data.domains.event import Event
 from app.services.event_service import EventService
 
@@ -17,6 +17,11 @@ async def list_all(
 ) -> List[Event]:
     return await event_service.get_all()
 
+@router.get("/disciplines", name="events:disciplines")
+async def list_all(
+        event_service: Annotated[EventService, Depends(EventService)]
+) -> List[str]:
+    return await event_service.disciplines()
 
 @router.get("/{event_id}", name="events:get-by-id")
 async def get_by_id(
@@ -32,7 +37,7 @@ async def create_event(
         create_event_dto: Annotated[CreateEventReq, Body(...)],
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
-    user_id = "6752f8b0f03f50dc0e8f5244"
+    user_id = "6752f91f8325392bd4c2ad81"
     return await event_service.create_event(user_id, create_event_dto)
 
 
@@ -48,5 +53,5 @@ async def create_event(
 async def search(
         page: SearchReq,
         event_service: Annotated[EventService, Depends(EventService)]
-) -> Page[Event]:
+) -> Page[ExtendedEvent]: #возвращать должен extendedModel with Region
     return await event_service.search(page)
