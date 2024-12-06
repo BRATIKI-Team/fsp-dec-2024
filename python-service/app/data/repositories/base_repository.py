@@ -29,9 +29,7 @@ class BaseRepository:
     async def update(self, item_id: str, item: T) -> bool:
         """Update an existing document by ID."""
         document = item.model_dump()
-        print("document before", document)
         del document["id"]
-        print("document", document)
         result = await self.collection.update_one(
             {"_id": ObjectId(item_id)},
             {"$set": document}
