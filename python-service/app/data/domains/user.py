@@ -15,7 +15,7 @@ class User(BaseModel):
     email: EmailStr
     password: str
     role: UserRole
-    regionId: Optional[str] = None
+    region_id: Optional[str] = None
 
     class Config:
         from_attributes = True

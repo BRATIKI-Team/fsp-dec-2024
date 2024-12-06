@@ -32,5 +32,5 @@ class RegionService(BaseService[Region]):
             )
 
         user.role = UserRole.MEMBER
-        user.regionId = region_id
+        user.region_id = region_id
         return await self.user_service.update(user_id, user)

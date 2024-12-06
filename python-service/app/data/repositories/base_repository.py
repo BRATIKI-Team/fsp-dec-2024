@@ -1,10 +1,11 @@
-from fastapi.routing import serialize_response
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from typing import List, Dict, Optional, TypeVar, Any
+
 from bson import ObjectId
-from typing import List, Dict, Optional, Type, TypeVar, Any, Annotated
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)  # TypeVar for generic models
+
 
 class BaseRepository:
     def __init__(
