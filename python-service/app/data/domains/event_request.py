@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class EventRequestStatus(str, Enum):
     PENDING = "pending"
-    ACCEPTED = "accepted"
+    APPROVED = "approved"
     DECLINED = "declined"
 
 class EventRequest(BaseModel):

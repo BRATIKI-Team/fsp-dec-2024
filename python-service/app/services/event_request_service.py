@@ -34,8 +34,8 @@ class EventRequestService(BaseService[EventRequest]):
             raise Exception("User is not found")
 
         match event_request.status:
-            case EventRequestStatus.ACCEPTED:
-                print("accepted")
+            case EventRequestStatus.APPROVED:
+                print("approved")
                 # await self.notify_about_accepted_request(user.email, event, event_request)
             case EventRequestStatus.DECLINED:
                 print("declined")
@@ -81,6 +81,6 @@ class EventRequestService(BaseService[EventRequest]):
         )
         #await self._mail.send_message(email_message)
 
-    async def notify_about_accepted_request(self, user_email: str, event: Event, event_req: EventRequest):
+    async def notify_about_approved_request(self, user_email: str, event: Event, event_req: EventRequest):
         # todo
         pass
