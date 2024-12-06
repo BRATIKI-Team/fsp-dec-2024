@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from pydantic import EmailStr
 
 from app.core.dependencies import get_db
-from app.data.domains.user import User
+from app.data.domains.user import User, UserRole
 from app.data.repositories.base_repository import BaseRepository, T
 
 

@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, EmailStr
 
 
-class UserRole(Enum):
+class UserRole(str, Enum):
     SUPER_ADMIN = "super-admin",
     ADMIN = "admin",
     REPRESENTOR = "representor"
