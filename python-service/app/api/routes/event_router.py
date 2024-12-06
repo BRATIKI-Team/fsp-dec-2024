@@ -21,9 +21,6 @@ async def get_by_id(
 ) -> Event:
     return await event_service.get(event_id)
 
-@router.post("/", name="events:create")
-async def create_event()
-
 @router.post("/{event_id}/create_request", name="events:create-request")
 async def create_request(
         event_id: str,
