@@ -17,5 +17,5 @@ class UserRepository(BaseRepository):
         document = await self.collection.find_one({"email": email})
         return self._document_to_model(document) if document else None
 
-    def serialize(self, document: Dict) -> T:
+    def serialize(self, document: Dict) -> User:
         return User(**document)
