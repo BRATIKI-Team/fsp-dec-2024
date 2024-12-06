@@ -11,5 +11,6 @@ class EventRequestStatus(str, Enum):
 class EventRequest(BaseModel):
     id: Optional[str] = None
     event_id: str
+    region_id: str
     status: EventRequestStatus
     canceled_reason: Optional[str] = None
