@@ -41,14 +41,6 @@ async def create_event(
     return await event_service.create_event(user_id, create_event_dto)
 
 
-# @router.post("/{event_id}/create_request", name="events:create-request")
-# async def create_request(
-#         event_id: str,
-#         event_service: Annotated[EventService, Depends(EventService)]
-# ) -> bool:
-#     return await event_service.create_request_for_event(event_id)
-
-
 @router.post("/search", name="events:update")
 async def search(
         page: SearchReq,
