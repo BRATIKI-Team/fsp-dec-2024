@@ -10,6 +10,7 @@ class UserRole(str, Enum):
     MEMBER = "member"
     USER = "user"
 
+
 class User(BaseModel):
     id: Optional[str] = None
     email: EmailStr
@@ -19,4 +20,3 @@ class User(BaseModel):
 
     class Config:
         from_attributes = True
-

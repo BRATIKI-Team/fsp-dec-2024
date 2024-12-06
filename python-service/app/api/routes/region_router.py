@@ -29,13 +29,6 @@ async def assign_admin(
     return await region_service.assign_admin(region_id, user_id)
 
 
-@router.post("/seeder", name="regions:seeder")
-async def seeder(
-        region_service: Annotated[RegionService, Depends(RegionService)]
-) -> bool:
-    return await region_service.seeder()
-
-
 @router.get("/get-all", name="regions:get-all")
 async def get_all(
         region_service: Annotated[RegionService, Depends(RegionService)]
