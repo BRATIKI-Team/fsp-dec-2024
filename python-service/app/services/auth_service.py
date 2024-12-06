@@ -7,10 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from app.api.dto.login_dto import LoginDto
-from app.api.dto.login_result_dto import LoginResultDto
-from app.api.dto.refresh_token_request_dto import RefreshTokenReq
-from app.api.dto.register_dto import RegisterDto
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.data.domains.user import User
 from app.services.user_service import UserService
@@ -24,7 +21,7 @@ class AuthService:
         self.user_service = user_service
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    async def register(self, register_dto: RegisterDto) -> bool:
+    async def register(self, register_dto: RegisterReq) -> bool:
         user = await self.user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")
@@ -34,7 +31,7 @@ class AuthService:
         user_id = await self.user_service.create(new_user)
         return user_id is not None
 
-    async def login(self, login_dto: LoginDto) -> LoginResultDto:
+    async def login(self, login_dto: LoginReq) -> LoginResp:
         user = await self.user_service.get_user_by_email(login_dto.email)
         if not user:
             raise HTTPException(
@@ -65,19 +62,21 @@ class AuthService:
 
         return self.complete_user_login(user)
 
-    def complete_user_login(self, user: User) -> LoginResultDto:
+    def complete_user_login(self, user: User) -> LoginResp:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         refresh_token_expires = timedelta(days=7)
 
         creds = {"id": user.id, "sub": user.email}
         access_token = self.create_access_token(creds, access_token_expires)
         refresh_token = self.create_access_token(creds, refresh_token_expires)
-        return LoginResultDto(
+        return LoginResp(
             id=user.id,
             email=user.email,
             token=access_token,
             refresh_token=refresh_token
         )
+
+    # async def forget_password(self, request: ForgetPasswordReq):
 
     @classmethod
     def create_access_token(cls, data: dict, expire_date: timedelta) -> str:

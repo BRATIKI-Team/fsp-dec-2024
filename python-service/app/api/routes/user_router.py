@@ -2,10 +2,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, Body
 
-from app.api.dto.login_dto import LoginDto
-from app.api.dto.login_result_dto import LoginResultDto
-from app.api.dto.refresh_token_request_dto import RefreshTokenReq
-from app.api.dto.register_dto import RegisterDto
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq
 from app.data.domains.user import User
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -14,7 +11,7 @@ router = APIRouter()
 
 @router.post("/register", name="users:register")
 async def register(
-        register_dto: Annotated[RegisterDto, Body(...)],
+        register_dto: Annotated[RegisterReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
 ) -> bool:
     return await auth_service.register(register_dto)
@@ -22,9 +19,9 @@ async def register(
 
 @router.post("/login", name="users:login")
 async def login(
-        login_dto: Annotated[LoginDto, Body(...)],
+        login_dto: Annotated[LoginReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
-) -> LoginResultDto:
+) -> LoginResp:
     return await auth_service.login(login_dto)
 
 
@@ -32,7 +29,7 @@ async def login(
 async def refresh_token(
         refresh_token_req: Annotated[RefreshTokenReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
-) -> LoginResultDto:
+) -> LoginResp:
     return await auth_service.refresh_token(refresh_token_req)
 
 
