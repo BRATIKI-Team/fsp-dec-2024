@@ -11,13 +11,13 @@ export default defineNuxtConfig({
   },
   auth: {
     isEnabled: true,
-    baseURL: `${process.env.NUXT_BACKEND_URL}/user`,
+    baseURL: `${process.env.NUXT_BACKEND_URL}/user/`,
     provider: {
       type: 'local',
       endpoints: {
-        signIn: { path: '/login', method: 'post' },
-        signUp: { path: '/register', method: 'post' },
-        getSession: { path: '/me', method: 'get' },
+        signIn: { path: 'login', method: 'post' },
+        signUp: { path: 'register', method: 'post' },
+        getSession: { path: 'me', method: 'get' },
       },
       token: {
         signInResponseTokenPointer: '/token',
@@ -28,7 +28,7 @@ export default defineNuxtConfig({
       },
       refresh: {
         isEnabled: true,
-        endpoint: { path: '/refresh-token', method: 'post' },
+        endpoint: { path: 'refresh-token', method: 'post' },
         refreshOnlyToken: false,
         token: {
           signInResponseRefreshTokenPointer: '/refresh_token',
