@@ -6,7 +6,9 @@ definePageMeta({
   layout: 'auth'
 })
 
-const { auth } = api();
+const auth_api = auth();
+const config_api = config();
+
 const loading = ref(false);
 const error = ref(false);
 
@@ -53,10 +55,9 @@ const onSubmit = (data: {
 
   error.value = false;
   loading.value = true;
-  auth
+  auth_api
     .sign_up(data)
-    .catch(() => (error.value = true))
-    .then(() => { navigateTo('/auth/sign_in') })
+    .then(() => { navigateTo('/auth/sign_in') }, () => { error.value = true })
     .finally(() => (loading.value = false));
 };
 </script>
@@ -91,7 +92,7 @@ const onSubmit = (data: {
       Регистрируясь в системе, Вы соглашаетесь с
       <NuxtLink
         class="text-primary font-medium"
-        to="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+        :to="config_api.PRIVACY_POLICY_URL()">
         Политикой конфиденциальности</NuxtLink
       >.
     </template>

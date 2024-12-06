@@ -11,10 +11,8 @@ export default () => {
   const session = async () => auth.getSession();
 
   return {
-    auth: {
-      sign_in,
-      sign_up,
-      session,
-    },
+    sign_in,
+    sign_up,
+    session,
   };
 };

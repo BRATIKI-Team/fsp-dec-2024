@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       backendUrl: process.env.NUXT_BACKEND_URL,
+      privacyPolicyUrl: process.env.PRIVACY_POLICY_URL,
     },
   },
   auth: {
