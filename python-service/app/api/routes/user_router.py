@@ -1,13 +1,14 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, Body
+from fastapi import APIRouter, Depends, Body, BackgroundTasks
 
-from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.data.domains.user import User
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 
 router = APIRouter()
+
 
 @router.post("/register", name="users:register")
 async def register(
@@ -25,6 +26,15 @@ async def login(
     return await auth_service.login(login_dto)
 
 
+@router.put('/forget', name="users:forget")
+async def reset(
+        background_tasks: BackgroundTasks,
+        forget_dto: Annotated[ForgetPasswordReq, Body(...)],
+        auth_service: Annotated[AuthService, Depends(AuthService)]
+) -> bool:
+    return await auth_service.forget_password(background_tasks, forget_dto)
+
+
 @router.post("/refresh-token", name="users:refresh-token")
 async def refresh_token(
         refresh_token_req: Annotated[RefreshTokenReq, Body(...)],
@@ -39,12 +49,14 @@ async def get_all(
 ) -> List[User]:
     return await user_service.get_all()
 
+
 @router.get("/me", name="users:me")
 async def get_me(
         user_id: Annotated[str, Depends(AuthService.require_user_id)],
         user_service: Annotated[UserService, Depends(UserService)]
 ) -> User:
     return await user_service.get(user_id)
+
 
 @router.get("/{user_id}", name="users:get-by-id")
 async def get_by_id(

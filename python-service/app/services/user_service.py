@@ -1,6 +1,7 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Depends
+from pydantic import EmailStr
 
 from app.data.repositories.user_repository import UserRepository
 from app.services.base_service import BaseService
@@ -11,5 +12,5 @@ class UserService(BaseService[User]):
         super().__init__(user_repository)
         self.user_repository = user_repository
 
-    async def get_user_by_email(self, email: str) -> User:
+    async def get_user_by_email(self, email: EmailStr) -> Optional[User]:
         return await self.user_repository.get_user_by_email(email)

@@ -5,12 +5,17 @@ from typing import Annotated
 import jwt
 from dns.dnssecalgs import algorithms
 from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
+from fastapi_mail import MessageSchema, MessageType, FastMail
 from passlib.context import CryptContext
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from app.data.domains.user import User, UserRole
+from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_PASSWORD_TOKEN_URL, \
+    RESET_PASSWORD_TOKEN_EXPIRE_MINUTES, APP_NAME, CLIENT_HOST
+from app.data.domains.user import User
 from app.services.user_service import UserService
 
 
@@ -77,7 +82,50 @@ class AuthService:
             refresh_token=refresh_token
         )
 
-    # async def forget_password(self, request: ForgetPasswordReq):
+    async def forget_password(self, background_tasks: BackgroundTasks, req: ForgetPasswordReq):
+        user = await self.user_service.get_user_by_email(req.email)
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        token_payload = {
+            "sub": user.email,
+            "exp": datetime.now(timezone.utc) + timedelta(minutes=RESET_PASSWORD_TOKEN_EXPIRE_MINUTES)
+        }
+
+        token = jwt.encode(
+            payload=token_payload,
+            key=JWT_SECRET_KEY,
+            algorithm=JWT_ALGORITHM
+        )
+
+        forget_url_link = f"{CLIENT_HOST}{RESET_PASSWORD_TOKEN_URL}/{token}"
+
+        email_body = {
+            "company_name": APP_NAME,
+            "link_expiry_min": RESET_PASSWORD_TOKEN_EXPIRE_MINUTES,
+            "reset_link": forget_url_link,
+        }
+
+        email_message = MessageSchema(
+            subject="Инструкции по восстановлению пароля.",
+            recipients=[user.email],
+            template_body=email_body,
+            subtype=MessageType.html
+        )
+
+        template_name = 'static/mail/password_reset.html'
+
+        # TODO setup mail
+        fm = FastMail()
+        background_tasks.add_task(
+            func=fm.send_message,
+            message=email_message,
+            template_name=template_name
+        )
 
     @classmethod
     def create_access_token(cls, data: dict, expire_date: timedelta) -> str:

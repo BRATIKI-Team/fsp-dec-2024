@@ -1,21 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 
 class RegisterReq(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 class LoginReq(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 class LoginResp(BaseModel):
     id: str
-    email: str
+    email: EmailStr
     token: str
     refresh_token: str
 
 class ForgetPasswordReq(BaseModel):
-    email: str
+    email: EmailStr
 
 class RefreshTokenReq(BaseModel):
     refresh_token: str
