@@ -10,10 +10,8 @@ class BaseRepository:
     def __init__(
             self,
             db: AsyncIOMotorDatabase,
-            collection_name: str,
-            model_cls: Type[T]):
+            collection_name: str):
         self.collection = db[collection_name]
-        self.model_cls = model_cls
 
     async def insert(self, item: T) -> str:
         """Insert a new document into the collection."""

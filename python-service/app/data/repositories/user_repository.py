@@ -10,7 +10,7 @@ from app.core.dependecies import get_db
 
 class UserRepository(BaseRepository):
     def __init__(self, db: Annotated[AsyncIOMotorDatabase, Depends(get_db)]):
-        super().__init__(db, "users", User)
+        super().__init__(db, "users")
 
     async def get_user_by_email(self, email: EmailStr) -> Optional[User]:
         document = await self.collection.find_one({ "email": email })

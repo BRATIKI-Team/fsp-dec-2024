@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from onnxruntime.transformers.models.stable_diffusion.diffusion_models import BaseModel
+from pydantic import BaseModel
+
 
 class Event(BaseModel):
     id: Optional[str] = None
