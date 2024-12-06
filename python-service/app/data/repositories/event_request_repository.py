@@ -7,7 +7,6 @@ from app.core.dependencies import get_db
 from app.data.domains.event_request import EventRequest
 from app.data.repositories.base_repository import BaseRepository, T
 
-
 class EventRequestRepository(BaseRepository):
     def __init__(self, db: Annotated[AsyncIOMotorDatabase, Depends(get_db)]):
         super().__init__(db, "event-requests")

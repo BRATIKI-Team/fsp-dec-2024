@@ -2,6 +2,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, Body
 
+from app.api.dto.event_request_dto import SendRequestResult
 from app.data.domains.event_request import EventRequest
 from app.services.event_request_service import EventRequestService
 
@@ -15,7 +16,7 @@ async def list_all(
 ) -> List[EventRequest]:
     return await event_request_service.get_all()
 
-@router.get("/by-region/{region_id}", name="event-requests:get-by-region")
+@router.get("/{region_id}/by-region", name="event-requests:get-by-region")
 async def get_by_region_id(
         region_id: str,
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
@@ -30,11 +31,11 @@ async def get_by_id(
     return await event_request_service.get(req_id)
 
 # todo: only for MEMBER
-@router.post("/{event_id}/create_request", name="event-requests:send-request")
+@router.post("/{event_id}/send_request", name="event-requests:send-request")
 async def send_request(
         event_id: str,
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
-) -> bool:
+) -> SendRequestResult:
     return await event_request_service.send_event_request(event_id)
 
 # todo: save endpoint for only SUPER_ADMIN
@@ -47,7 +48,7 @@ async def set_status(
     return await event_request_service.set_status(req_id, event_request)
 
 @router.delete("/{req_id}", name="event-requests:delete")
-async def set_status(
+async def delete(
         req_id: str,
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
 ) -> bool:

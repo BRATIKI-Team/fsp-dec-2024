@@ -1,15 +1,14 @@
 from typing import Annotated, List
 
 from fastapi import Depends
-from fastapi_mail import MessageSchema, MessageType
 
 from app.api.dto.event_request_dto import SendRequestResult
-from app.core.config import APP_NAME
 from app.data.domains.event import Event
 from app.data.domains.event_request import EventRequest, EventRequestStatus
 from app.data.repositories.event_request_repository import EventRequestRepository
 from app.services.base_service import BaseService
 from app.services.event_service import EventService
+from app.services.mail.mail_service import MailService
 from app.services.user_service import UserService
 
 
@@ -18,11 +17,13 @@ class EventRequestService(BaseService[EventRequest]):
             self,
             user_service: Annotated[UserService, Depends(UserService)],
             event_service: Annotated[EventService, Depends(EventService)],
-            event_request_repository: Annotated[EventRequestRepository, Depends(EventRequestRepository)]):
+            event_request_repository: Annotated[EventRequestRepository, Depends(EventRequestRepository)],
+            mail_service: Annotated[MailService, Depends(MailService)]):
         super().__init__(event_request_repository)
         self._user_service = user_service
         self._event_service = event_service
         self._event_request_repository = event_request_repository
+        self._mail_service = mail_service
 
     async def set_status(self, request_id: str, event_request: EventRequest) -> bool:
         event = await self._event_service.get(event_request.event_id)
@@ -36,10 +37,13 @@ class EventRequestService(BaseService[EventRequest]):
         match event_request.status:
             case EventRequestStatus.APPROVED:
                 print("approved")
-                # await self.notify_about_accepted_request(user.email, event, event_request)
+                event.is_approved_event = True
+                updated = await self._event_service.update(event.id, event)
+                print(updated, event)
+                await self._mail_service.notify_about_declined_request(user.email, event, event_request)
             case EventRequestStatus.DECLINED:
                 print("declined")
-                #await self.notify_about_declined_request(user.email, event, event_request)
+                await self._mail_service.notify_about_declined_request(user.email, event, event_request)
 
         return await super().update(request_id, event_request)
 
@@ -66,21 +70,3 @@ class EventRequestService(BaseService[EventRequest]):
     async def get_by_region_id(self, region_id: str) -> List[EventRequest]:
         filters = {"region_id": region_id}
         return await super().filter(filters)
-
-    async def notify_about_declined_request(self, user_email: str, event: Event, event_req: EventRequest) -> None:
-        email_body = {
-            "company_name": APP_NAME,
-            "event_name": event.name
-        }
-
-        email_message = MessageSchema(
-            subject="Отклонение заявки.",
-            recipients=[user_email],
-            template_body=email_body,
-            subtype=MessageType.html
-        )
-        #await self._mail.send_message(email_message)
-
-    async def notify_about_approved_request(self, user_email: str, event: Event, event_req: EventRequest):
-        # todo
-        pass
