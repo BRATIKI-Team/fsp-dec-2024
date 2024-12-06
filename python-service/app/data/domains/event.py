@@ -1,7 +1,9 @@
 from datetime import datetime
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel
+
 
 class Event(BaseModel):
     id: Optional[str] = None
@@ -12,3 +14,7 @@ class Event(BaseModel):
     discipline: Optional[str] = None
     description: Optional[str] = None
     is_approved_event: bool
+
+
+class EventFilter(str, Enum):
+    regions = 'regions'

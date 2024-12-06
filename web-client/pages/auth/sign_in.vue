@@ -3,11 +3,11 @@ import type { FormError } from '#ui/types';
 import type { SignInRequest } from '~/types/dtos/sign_in';
 
 definePageMeta({
-  layout: 'auth'
-})
+  layout: 'auth',
+});
 
-const auth = useAuth();
-const config_api = config()
+const auth_api = useAuth();
+const config_api = config();
 
 const loading = ref(false);
 const error = ref(false);
@@ -47,8 +47,6 @@ const errors = (state: {
   return [];
 };
 
-
-
 const onSubmit = async (data: {
   readonly email: string | null;
   readonly password: string | null;
@@ -58,10 +56,10 @@ const onSubmit = async (data: {
   error.value = false;
   loading.value = true;
   try {
-    await auth.signIn(data,  { callbackUrl: '/app/events' })
-  }
-  catch(e) {
-    loading.value = false
+    await auth_api.signIn(data, { callbackUrl: '/app/events' });
+  } catch (_) {
+    error.value = true;
+    loading.value = false;
   }
 };
 </script>
@@ -97,8 +95,9 @@ const onSubmit = async (data: {
       <NuxtLink
         class="text-primary font-medium"
         :to="config_api.PRIVACY_POLICY_URL()">
-        Политикой конфиденциальности</NuxtLink
-      >.
+        Политикой конфиденциальности
+      </NuxtLink>
+      .
     </template>
   </UAuthForm>
 </template>

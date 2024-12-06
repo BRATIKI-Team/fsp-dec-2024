@@ -2,8 +2,10 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.api.dto import SearchReq, Page
 from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event import Event
+from app.data.repositories.base_repository import T
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
 from app.services.user_service import UserService
@@ -12,8 +14,9 @@ from app.services.user_service import UserService
 class EventService(BaseService[Event]):
     def __init__(
             self,
-            user_service:Annotated[UserService, Depends(UserService)],
-            event_repository: Annotated[EventRepository, Depends(EventRepository)]):
+            user_service: Annotated[UserService, Depends(UserService)],
+            event_repository: Annotated[EventRepository, Depends(EventRepository)]
+    ):
         super().__init__(event_repository)
         self._user_service = user_service
         self._event_repository = event_repository
@@ -33,3 +36,6 @@ class EventService(BaseService[Event]):
         )
         event_id = await super().create(event)
         return event_id is not None
+
+    async def search(self, req: SearchReq) -> Page[T]:
+        return await self._event_repository.search(req=req)

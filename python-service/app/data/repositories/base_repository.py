@@ -1,8 +1,10 @@
 from typing import List, Dict, Optional, TypeVar, Any
 
 from bson import ObjectId
-from motor.motor_asyncio import AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorDatabase, AsyncIOMotorCursor
 from pydantic import BaseModel
+
+from app.api.dto import PageReq, Page
 
 T = TypeVar("T", bound=BaseModel)  # TypeVar for generic models
 
@@ -47,6 +49,16 @@ class BaseRepository:
         """Filter documents based on given filters."""
         documents = await self.collection.find(filters).to_list()
         return [self._document_to_model(doc) for doc in documents]
+
+    async def paginate(self, cursor: AsyncIOMotorCursor, req: PageReq) -> Page[T]:
+        documents = await cursor.skip((req.page - 1) * req.page_size).to_list(req.page_size + 1)
+
+        return Page(
+            page=req.page,
+            page_size=req.page_size,
+            items=[self._document_to_model(doc) for doc in documents[:req.page_size]],
+            more=len(documents) == req.page_size + 1
+        )
 
     def _document_to_model(self, document: Dict):
         """Convert MongoDB document to Pydantic model."""

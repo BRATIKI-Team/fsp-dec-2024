@@ -3,10 +3,10 @@ import type { FormError } from '#ui/types';
 import type { SignUpRequest } from '~/types/dtos/sign_up';
 
 definePageMeta({
-  layout: 'auth'
-})
+  layout: 'auth',
+});
 
-const auth_api = auth();
+const auth_api = useAuth();
 const config_api = config();
 
 const loading = ref(false);
@@ -55,10 +55,12 @@ const onSubmit = (data: {
 
   error.value = false;
   loading.value = true;
-  auth_api
-    .sign_up(data)
-    .then(() => { navigateTo('/auth/sign_in') }, () => { error.value = true })
-    .finally(() => (loading.value = false));
+  try {
+    auth_api.signUp(data, { callbackUrl: '/auth/sign_in' });
+  } catch (_) {
+    loading.value = false;
+    error.value = true;
+  }
 };
 </script>
 
@@ -76,7 +78,7 @@ const onSubmit = (data: {
     <template #description>
       Уже есть аккаунт?
       <NuxtLink class="text-primary font-medium" to="/auth/sign_in"
-      >Войти
+        >Войти
       </NuxtLink>
     </template>
 
@@ -93,8 +95,9 @@ const onSubmit = (data: {
       <NuxtLink
         class="text-primary font-medium"
         :to="config_api.PRIVACY_POLICY_URL()">
-        Политикой конфиденциальности</NuxtLink
-      >.
+        Политикой конфиденциальности
+      </NuxtLink>
+      .
     </template>
   </UAuthForm>
 </template>
