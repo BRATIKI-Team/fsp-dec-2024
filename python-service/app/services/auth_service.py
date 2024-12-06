@@ -175,11 +175,11 @@ class AuthService:
             raise Exception("You have no permissions")
 
     @classmethod
-    def require_representor(
+    def require_member(
             cls,
             token: Annotated[str, Depends(OAuth2PasswordBearer)]
     ) -> None:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
         user_role = payload.get("role")
-        if user_role != UserRole.ADMIN or user_role != UserRole.REPRESENTOR:
+        if user_role != UserRole.ADMIN or user_role != UserRole.MEMBER:
             raise Exception("You have no permissions")

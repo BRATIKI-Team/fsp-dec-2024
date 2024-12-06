@@ -1,9 +1,11 @@
 from typing import Annotated, List
 
 from fastapi import APIRouter
-from fastapi.params import Depends
+from fastapi.params import Depends, Body
 
+from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event import Event
+from app.services.auth_service import AuthService
 from app.services.event_service import EventService
 
 router = APIRouter()
@@ -20,6 +22,14 @@ async def get_by_id(
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> Event:
     return await event_service.get(event_id)
+
+@router.post("/", name="events:create")
+async def create_event(
+        user_id: Annotated[str, Depends(AuthService.require_user_id)],
+        create_event_dto: Annotated[CreateEventReq, Body(...)],
+        event_service: Annotated[EventService, Depends(EventService)]
+) -> bool:
+    pass
 
 @router.post("/{event_id}/create_request", name="events:create-request")
 async def create_request(

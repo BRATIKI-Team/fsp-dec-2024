@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event_request import EventRequest, EventStatus
 from app.data.domains.user import User
 from app.data.repositories.event_repository import EventRepository
@@ -16,6 +17,9 @@ class EventService(BaseService[User]):
         super().__init__(event_repository)
         self.event_repository = event_repository
         self.event_request_repository = event_request_repository
+
+
+    async def create(self, user_id: str, create_event_dto: CreateEventReq) -> bool:
 
 
     async def create_request_for_event(self, event_id: str) -> bool:
