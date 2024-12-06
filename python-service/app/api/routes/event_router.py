@@ -23,13 +23,14 @@ async def get_by_id(
 ) -> Event:
     return await event_service.get(event_id)
 
-@router.post("/", name="events:create")
+@router.post("", name="events:create")
 async def create_event(
-        user_id: Annotated[str, Depends(AuthService.require_user_id)],
+        #user_id: Annotated[str, Depends(AuthService.require_user_id)],
         create_event_dto: Annotated[CreateEventReq, Body(...)],
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
-    pass
+    user_id = "6752f8b0f03f50dc0e8f5244"
+    return await event_service.create_event(user_id, create_event_dto)
 
 @router.post("/{event_id}/create_request", name="events:create-request")
 async def create_request(

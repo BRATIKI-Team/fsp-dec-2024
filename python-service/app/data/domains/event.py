@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class Event(BaseModel):
     id: Optional[str] = None
-    regionId: str
+    region_id: str
     name: str
     discipline: str
     description: str
