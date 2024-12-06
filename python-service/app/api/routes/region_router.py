@@ -8,6 +8,7 @@ from app.services.region_service import RegionService
 
 router = APIRouter()
 
+
 @router.post("/{region_id}/assign-member/{user_id}", name="regions:assign-member")
 async def assign_member(
         region_id: str,
@@ -16,6 +17,7 @@ async def assign_member(
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
     return await region_service.assign_member(region_id, user_id)
+
 
 @router.post("/{region_id}/assign-admin/{user_id}", name="regions:assign-admin")
 async def assign_admin(
@@ -26,11 +28,20 @@ async def assign_admin(
 ) -> bool:
     return await region_service.assign_admin(region_id, user_id)
 
+
+@router.post("/seeder", name="regions:seeder")
+async def seeder(
+        region_service: Annotated[RegionService, Depends(RegionService)]
+) -> bool:
+    return await region_service.seeder()
+
+
 @router.get("/get-all", name="regions:get-all")
 async def get_all(
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> List[Region]:
     return await region_service.get_all()
+
 
 @router.get("/{region_id}", name="regions:get-by-id")
 async def get_by_id(

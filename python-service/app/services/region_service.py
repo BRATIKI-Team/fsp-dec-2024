@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
+from app.data.domains.contacts import Contacts
 from app.data.domains.region import Region
 from app.data.domains.user import UserRole
 from app.data.repositories.region_repository import RegionRepository
@@ -15,6 +16,13 @@ class RegionService(BaseService[Region]):
         super().__init__(region_repository)
         self.region_repository = region_repository
         self.user_service = user_service
+
+    async def seeder(self) -> bool:
+        regions = self.__stub_regions()
+        for region in regions:
+            await self.create(region)
+
+        return True
 
     async def assign_admin(self, region_id: str, user_id: str) -> bool:
         return await  self.__assign_user_internal(region_id, user_id, UserRole.ADMIN)
@@ -40,3 +48,25 @@ class RegionService(BaseService[Region]):
         user.role = role
         user.region_id = region_id
         return await self.user_service.update(user_id, user)
+
+    @staticmethod
+    def __stub_regions() -> list[Region]:
+        return [
+            Region(
+                name="North Region",
+                description="Region characterized by mountain landscapes.",
+                isMain=True,
+                contacts=Contacts(email="north@example.com", phone="123-456-7890", social_links=[""])
+            ),
+            Region(
+                name="South Region",
+                description="Region known for its sunny beaches.",
+                isMain=False,
+                contacts=Contacts(email="south@example.com", phone="234-567-8901", social_links=[""])
+            ),
+            Region(
+                name="East Region",
+                description="Region with a rich cultural heritage.",
+                isMain=False,
+                contacts=Contacts(email="east@example.com", phone="345-678-9012", social_links=[""])
+            )]
