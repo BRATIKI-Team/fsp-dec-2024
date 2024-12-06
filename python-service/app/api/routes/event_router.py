@@ -35,8 +35,6 @@ async def create_event(
     user_id = "6752f8b0f03f50dc0e8f5244"
     return await event_service.create_event(user_id, create_event_dto)
 
-<<<<<<< HEAD
-=======
 
 # @router.post("/{event_id}/create_request", name="events:create-request")
 # async def create_request(
@@ -44,13 +42,6 @@ async def create_event(
 #         event_service: Annotated[EventService, Depends(EventService)]
 # ) -> bool:
 #     return await event_service.create_request_for_event(event_id)
-
->>>>>>> d2e92f1 (feat(filters): add filter base service)
-@router.get("/filter", name="events:filter")
-async def filter_events(
-        event_service: Annotated[EventService, Depends(EventService)]
-) -> List[Event]:
-    pass
 
 
 @router.post("/search", name="events:update")
