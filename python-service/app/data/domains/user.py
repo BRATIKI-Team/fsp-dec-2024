@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr
 class UserRole(str, Enum):
     SUPER_ADMIN = "super-admin",
     ADMIN = "admin",
-    REPRESENTOR = "representor"
+    MEMBER = "member"
     USER = "user"
 
 class User(BaseModel):

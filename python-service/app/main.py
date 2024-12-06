@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import user_router
+from app.api.routes import user_router, region_router
 
 
 def get_application() -> FastAPI:
@@ -19,6 +19,7 @@ def get_application() -> FastAPI:
 
     #routes
     application.include_router(user_router.router, tags=["users"], prefix="/user")
+    application.include_router(region_router.router, tags=["regions"], prefix="/region")
     return application
 
 
