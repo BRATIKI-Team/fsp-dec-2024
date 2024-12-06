@@ -1,3 +1,7 @@
-<template>
-    <slot />
-</template>
+<UHeader />
+
+<UMain>
+  <slot />
+</UMain>
+
+<UFooter />
