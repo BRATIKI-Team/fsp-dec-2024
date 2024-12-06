@@ -3,13 +3,13 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-class EventStatus(str, Enum):
+class EventRequestStatus(str, Enum):
     PENDING = "pending"
     ACCEPTED = "accepted"
-    CANCELED = "canceled"
+    DECLINED = "declined"
 
 class EventRequest(BaseModel):
     id: Optional[str] = None
     event_id: str
-    status: EventStatus
+    status: EventRequestStatus
     canceled_reason: Optional[str] = None

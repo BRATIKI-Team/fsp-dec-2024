@@ -20,7 +20,7 @@ def get_application() -> FastAPI:
     #routes
     application.include_router(user_router.router, tags=["users"], prefix="/user")
     application.include_router(event_router.router, tags=["events"], prefix="/events")
-    application.include_router(region_router.router, tags=["regions"], prefix="/region")
+    application.include_router(region_router.router, tags=["regions"], prefix="/regions")
     return application
 
 

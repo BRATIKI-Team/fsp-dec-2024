@@ -11,11 +11,10 @@ router = APIRouter()
 
 @router.post("/add-user", name="regions:add-user")
 async def add_user(
-        check: Annotated[None, Depends(AuthService.require_super_admin)],
-        region_service: Annotated[RegionService, Depends(RegionService)],
-        user_service: Annotated[UserService, Depends(UserService)],
         region_id: str,
-        user_id: str
+        user_id: str,
+        require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
+        region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
     return await region_service.add_user(region_id, user_id)
 

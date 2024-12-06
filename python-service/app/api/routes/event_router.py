@@ -32,12 +32,12 @@ async def create_event(
     user_id = "6752f8b0f03f50dc0e8f5244"
     return await event_service.create_event(user_id, create_event_dto)
 
-@router.post("/{event_id}/create_request", name="events:create-request")
-async def create_request(
-        event_id: str,
-        event_service: Annotated[EventService, Depends(EventService)]
-) -> bool:
-    return await event_service.create_request_for_event(event_id)
+# @router.post("/{event_id}/create_request", name="events:create-request")
+# async def create_request(
+#         event_id: str,
+#         event_service: Annotated[EventService, Depends(EventService)]
+# ) -> bool:
+#     return await event_service.create_request_for_event(event_id)
 
 @router.get("/filter", name="events:filter")
 async def filter_events(
