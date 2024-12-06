@@ -3,6 +3,8 @@ from sys import prefix
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes import user_router, region_router, event_router, event_request_router
+
 from app.api.routes import user_router, region_router, event_router, seeder_router
 
 
@@ -22,6 +24,7 @@ def get_application() -> FastAPI:
     application.include_router(user_router.router, tags=["users"], prefix="/user")
     application.include_router(event_router.router, tags=["events"], prefix="/events")
     application.include_router(region_router.router, tags=["regions"], prefix="/regions")
+    application.include_router(event_request_router.router, tags=["event-requests"], prefix="/event-requests")
     application.include_router(seeder_router.router, tags=["seeders"], prefix="/seeders")
     return application
 

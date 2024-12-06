@@ -25,7 +25,7 @@ class EventService(BaseService[Event]):
         region_id = "6752f8b0f03f50dc0e8f5244"
         event = Event(
             region_id=region_id,
-            member_create_id=user_id,
+            member_created_id=region_id,
             name=create_event_dto.name,
             discipline=create_event_dto.discipline,
             description=create_event_dto.description,
