@@ -32,7 +32,7 @@ class EventService(BaseService[Event]):
         region_id = "675323b351c0c41c65646946"
         event = Event(
             region_id=region_id,
-            member_created_id=region_id,
+            member_created_id=user_id,
             name=create_event_dto.name,
             discipline=create_event_dto.discipline,
             description=create_event_dto.description,
@@ -53,23 +53,17 @@ class EventService(BaseService[Event]):
         return list(disciplines)
 
 
-    async def search(self, req: 'SearchReq') -> Page[Event]:
+    async def search(self, req: 'SearchReq') -> Page[ExtendedEvent]:
         page = await self._event_repository.search(req=req)
-        #
-        # events = page.items
-        # extended_events = []
-        #
-        # for event in events:
-        #     region = await self._region_service.get(event.region_id)
-        #     user = await self._user_service.get(event.member_created_id)
-        #
-        #     extended_event = ExtendedEvent(
-        #         event=event,
-        #         region = region,
-        #         user=user
-        #     )
-        #
-        #     extended_events.append(extended_event)
-        #
-        # page.items = extended_events
-        return page
+        extended_events = []
+        for event in page.items:
+            user = await self._user_service.get(event.member_created_id)
+            region = await self._region_service.get(event.region_id)
+            extended_events.append(ExtendedEvent(event=event, user=user, region=region))
+
+        return Page(
+            page=page.page,
+            page_size=page.page_size,
+            items=extended_events,
+            more=page.more
+        )

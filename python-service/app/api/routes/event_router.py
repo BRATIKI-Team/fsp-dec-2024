@@ -45,5 +45,5 @@ async def create_event(
 async def search(
         page: SearchReq,
         event_service: Annotated[EventService, Depends(EventService)]
-) -> Page[Event]:
+) -> Page[ExtendedEvent]:
     return await event_service.search(page)

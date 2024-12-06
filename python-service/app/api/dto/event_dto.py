@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -15,5 +16,5 @@ class CreateEventReq(BaseModel):
 
 class ExtendedEvent(BaseModel):
     event: Event
-    region: Region
-    user: User
+    region: Optional[Region]
+    user: Optional[User]
