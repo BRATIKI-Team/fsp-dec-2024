@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-class EventStatus(Enum):
+class EventStatus(str, Enum):
     PENDING = "pending"
     ACCEPTED = "accepted"
     CANCELED = "canceled"
