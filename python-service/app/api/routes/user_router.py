@@ -1,6 +1,6 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends, Body, BackgroundTasks
+from fastapi import APIRouter, Depends, Body
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.data.domains.user import User
@@ -28,11 +28,18 @@ async def login(
 
 @router.put('/forget', name="users:forget")
 async def reset(
-        background_tasks: BackgroundTasks,
         forget_dto: Annotated[ForgetPasswordReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
-) -> bool:
-    return await auth_service.forget_password(background_tasks, forget_dto)
+) -> None:
+    return await auth_service.forget_password(forget_dto)
+
+
+@router.put('/reset', name="users:reset")
+async def reset(
+        reset_dto: Annotated[RefreshTokenReq, Body(...)],
+        auth_service: Annotated[AuthService, Depends(AuthService)]
+) -> None:
+    return await auth_service.reset_password(reset_dto)
 
 
 @router.post("/refresh-token", name="users:refresh-token")

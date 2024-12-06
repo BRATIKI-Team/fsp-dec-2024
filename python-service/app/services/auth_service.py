@@ -3,19 +3,17 @@ from http.client import HTTPException
 from typing import Annotated
 
 import jwt
-from dns.dnssecalgs import algorithms
 from fastapi import Depends, HTTPException, status
-from fastapi import Depends, HTTPException, status, BackgroundTasks
 from fastapi.security import OAuth2PasswordBearer
-from fastapi_mail import MessageSchema, MessageType, FastMail
+from fastapi_mail import MessageSchema, MessageType
 from passlib.context import CryptContext
 
-from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
-from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.data.domains.user import User, UserRole
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_PASSWORD_TOKEN_URL, \
     RESET_PASSWORD_TOKEN_EXPIRE_MINUTES, APP_NAME, CLIENT_HOST
+from app.core.dependencies import get_mail
 from app.data.domains.user import User
+from app.data.domains.user import UserRole
 from app.services.user_service import UserService
 
 
@@ -82,10 +80,10 @@ class AuthService:
             refresh_token=refresh_token
         )
 
-    async def forget_password(self, background_tasks: BackgroundTasks, req: ForgetPasswordReq):
+    async def forget_password(self, req: ForgetPasswordReq) -> None:
         user = await self.user_service.get_user_by_email(req.email)
 
-        if user is None:
+        if user is None or user.id is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
@@ -117,14 +115,28 @@ class AuthService:
             subtype=MessageType.html
         )
 
-        template_name = 'static/mail/password_reset.html'
+        fm = get_mail()
 
-        # TODO setup mail
-        fm = FastMail()
-        background_tasks.add_task(
-            func=fm.send_message,
-            message=email_message,
-            template_name=template_name
+        # TODO use bg tasks
+        await fm.send_message(message=email_message)
+
+    async def reset_password(self, req: ResetPasswordReq) -> None:
+        email = jwt.decode(req.token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM).get("sub")
+
+        hashed_pwd = self.pwd_context.hash(req.password)
+        user = await self.user_service.get_user_by_email(email)
+
+        if user is None or user.id is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+
+        user.password = hashed_pwd
+
+        await self.user_service.update(
+            item_id=user.id,
+            item=user
         )
 
     @classmethod
