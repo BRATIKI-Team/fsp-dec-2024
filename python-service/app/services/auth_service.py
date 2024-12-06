@@ -3,13 +3,14 @@ from http.client import HTTPException
 from typing import Annotated
 
 import jwt
+from dns.dnssecalgs import algorithms
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.data.domains.user import User
+from app.data.domains.user import User, UserRole
 from app.services.user_service import UserService
 
 
@@ -21,13 +22,13 @@ class AuthService:
         self.user_service = user_service
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    async def register(self, register_dto: RegisterReq) -> bool:
+    async def register(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> bool:
         user = await self.user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")
 
         hashed_pwd = self.pwd_context.hash(register_dto.password)
-        new_user = User(email=register_dto.email, password=hashed_pwd)
+        new_user = User(email=register_dto.email, password=hashed_pwd, role=role)
         user_id = await self.user_service.create(new_user)
         return user_id is not None
 
@@ -66,7 +67,7 @@ class AuthService:
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         refresh_token_expires = timedelta(days=7)
 
-        creds = {"id": user.id, "sub": user.email}
+        creds = {"id": user.id, "sub": user.email, "role": user.role}
         access_token = self.create_access_token(creds, access_token_expires)
         refresh_token = self.create_access_token(creds, refresh_token_expires)
         return LoginResp(
@@ -92,7 +93,6 @@ class AuthService:
             cls,
             token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="token"))]
     ) -> str:
-        print("require_user", token)
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
         user_id = payload.get("id")
         if user_id is None:
@@ -103,3 +103,23 @@ class AuthService:
             )
 
         return user_id
+
+    @classmethod
+    def require_super_admin(
+            cls,
+            token: Annotated[str, Depends(OAuth2PasswordBearer)]
+    ) -> None:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
+        user_role = payload.get("role")
+        if user_role != UserRole.SUPER_ADMIN:
+            raise Exception("You have no permissions")
+
+    @classmethod
+    def require_representor(
+            cls,
+            token: Annotated[str, Depends(OAuth2PasswordBearer)]
+    ) -> None:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
+        user_role = payload.get("role")
+        if user_role != UserRole.ADMIN or user_role != UserRole.REPRESENTOR:
+            raise Exception("You have no permissions")
