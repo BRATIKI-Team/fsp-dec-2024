@@ -3,6 +3,7 @@ from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, Body
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
+from app.api.dto.user_dto import UserDto
 from app.data.domains.user import User
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -61,7 +62,7 @@ async def get_all(
 async def get_me(
         user_id: Annotated[str, Depends(AuthService.require_user_id)],
         user_service: Annotated[UserService, Depends(UserService)]
-) -> User:
+) -> UserDto:
     return await user_service.get_me(user_id)
 
 
@@ -69,8 +70,8 @@ async def get_me(
 async def get_by_id(
         user_id: str,
         user_service: Annotated[UserService, Depends(UserService)]
-) -> Optional[User]:
-    return await user_service.get(user_id)
+) -> Optional[UserDto]:
+    return await user_service.get_me(user_id)
 
 
 @router.delete("/{user_id}", name="users:delete-by-id")

@@ -11,5 +11,10 @@ class EventFilterRepository(FilterRepository[EventFilter]):
                 type=EventFilter.regions,
                 build=mongo_multiple_equality_builder,
                 field='region_id'
+            ),
+            FilterMapItem(
+                type=EventFilter.disciplines,
+                build=mongo_multiple_equality_builder,
+                field='discipline'
             )
         ]
