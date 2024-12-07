@@ -5,25 +5,26 @@ from typing import Annotated
 import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from fastapi_mail import MessageSchema, MessageType
 from passlib.context import CryptContext
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_PASSWORD_TOKEN_URL, \
-    RESET_PASSWORD_TOKEN_EXPIRE_MINUTES, APP_NAME, CLIENT_HOST
-from app.core.dependencies import get_mail
+    RESET_PASSWORD_TOKEN_EXPIRE_MINUTES, CLIENT_HOST
 from app.data.domains.user import User
 from app.data.domains.user import UserRole
+from app.services.mail.mail_service import MailService
 from app.services.user_service import UserService
 
 
 class AuthService:
     def __init__(
             self,
-            user_service: Annotated[UserService, Depends(UserService)]
+            user_service: Annotated[UserService, Depends(UserService)],
+            mail_service: Annotated[MailService, Depends(MailService)],
     ):
         self.user_service = user_service
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.mail_service = mail_service
 
     async def register(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> bool:
         user = await self.user_service.get_user_by_email(register_dto.email)
@@ -102,23 +103,7 @@ class AuthService:
 
         forget_url_link = f"{CLIENT_HOST}{RESET_PASSWORD_TOKEN_URL}/{token}"
 
-        email_body = {
-            "company_name": APP_NAME,
-            "link_expiry_min": RESET_PASSWORD_TOKEN_EXPIRE_MINUTES,
-            "reset_link": forget_url_link,
-        }
-
-        email_message = MessageSchema(
-            subject="Инструкции по восстановлению пароля.",
-            recipients=[user.email],
-            template_body=email_body,
-            subtype=MessageType.html
-        )
-
-        fm = get_mail()
-
-        # TODO use bg tasks
-        await fm.send_message(message=email_message)
+        await self.mail_service.notify_about_password_reset(user.email, forget_url_link)
 
     async def reset_password(self, req: ResetPasswordReq) -> None:
         email = jwt.decode(req.token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM).get("sub")

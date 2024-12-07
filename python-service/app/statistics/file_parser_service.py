@@ -14,25 +14,54 @@ class FileParserService:
     def __init__(
             self,
             file_model_service: Annotated[FileModelService, Depends(FileModelService)],
-            region_service: Annotated[RegionService, Depends(RegionService)]
+            region_service: Annotated[RegionService, Depends(RegionService)],
     ):
         self._file_model_service = file_model_service
         self._region_service = region_service
 
-    async def parse_file_for_statistics(self, file_id: str) -> None:
+    async def parse_from_results_file(self, file_id: str) -> List[TeamResult]:
         file_model = await self._file_model_service.get(file_id)
         if not file_model:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Request not found",
+                detail="File not found",
             )
 
         data = None
         match file_model.file_type:
             case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                data = self.__parse_excel_file(file_model)
+                data = await self.__parse_excel_file(file_model)
             case "text/csv":
-                data = self.__parse_csv_file(file_model)
+                data = await self.__parse_csv_file(file_model)
+
+        if data:
+            return await self.__compile_data(data)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="File type is not allowed",
+            )
+
+    @staticmethod
+    def parse_to_results_file(team_results: List[TeamResult]) -> BytesIO:
+        data = [
+            {
+                "Команда": team_result.name,
+                "Регион": team_result.region_id,
+                "Рейтинг": team_result.place.value if team_result.place else "",
+            }
+            for team_result in team_results
+        ]
+        df = pd.DataFrame(data)
+
+        # Save the DataFrame to an Excel file in memory
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Results")
+
+        # Move the pointer to the start of the stream
+        output.seek(0)
+        return output
 
     async def __compile_data(self, data_frame: pd.DataFrame) -> List[TeamResult]:
         team_results = []
@@ -62,11 +91,11 @@ class FileParserService:
             elif idx == 2:
                 place = TeamPlace.THIRD
 
-
+            region = await self._region_service.get_by_subject(row["region"])
             team_results.append(
                 TeamResult(
                     name=row["team"],
-                    region_id=row["region"],
+                    region_id=region.id,
                     place=place
                 )
             )

@@ -6,11 +6,14 @@ from typing import Annotated, List
 from fastapi import Depends
 
 from app.data.domains.event import Event
+from app.data.domains.file_model import FileModel
 from app.data.domains.region import Region
 from app.data.domains.team_result import TeamResult, TeamPlace
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
+from app.services.file_model_service import FileModelService
 from app.services.region_service import RegionService
+from app.statistics.file_parser_service import FileParserService
 
 
 class EventSeeder(BaseService[Event]):
@@ -18,22 +21,40 @@ class EventSeeder(BaseService[Event]):
             self,
             event_repository: Annotated[EventRepository, Depends(EventRepository)],
             region_service: Annotated[RegionService, Depends(RegionService)],
+            file_model_service: Annotated[FileModelService, Depends(FileModelService)]
     ):
         super().__init__(event_repository)
         self._region_service = region_service
+        self._file_model_service = file_model_service
 
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
         names = self.__get_names_from_file('app/generator/docs/names.json')
+        event_names = self.__get_names_from_file('app/generator/docs/event_names.json')
         for region in regions:
-            events = self.__seed_events(region.id)
+            events = self.__seed_events(region.id, event_names)
 
+            count = 1
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
                 event.teams_results = teams_results
+                event.result_file_id = await self.generate_results_file(event.id, teams_results)
+                print(f"--count: {count} | {event.name}")
+                count += 1
                 await self.create(event)
 
         return True
+
+    async def generate_results_file(self, event_name: str, team_results: List[TeamResult]) -> str:
+        bytes_data = FileParserService.parse_to_results_file(team_results)
+        file_model = FileModel(
+            file_name=f"{event_name}_results.xls",
+            file_data=bytes_data.getvalue(),
+            file_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            uploaded_at=datetime.now()
+        )
+
+        return await self._file_model_service.create(file_model)
 
     @staticmethod
     def __get_names_from_file(file_path: str) -> List[str]:
@@ -52,19 +73,20 @@ class EventSeeder(BaseService[Event]):
             print(f"An error occurred: {e}")
         return []
 
-    def __seed_events(self, region_id: str) -> list[Event]:
+    def __seed_events(self, region_id: str, names: List[str]) -> list[Event]:
         events = []
         for year in range(2022, 2025):
             for month in range(1, 13):
-                event = self.__seed_event(year, month, region_id)
-                events.append(event)
+                events_month = self.__seed_events_month(year, month, region_id, names)
+                for event in events_month:
+                    events.append(event)
 
         return events
 
     @staticmethod
-    def __seed_event(year: int, month: int, region_id: str) -> Event:
-
-        num_events = random.randint(1, 10)
+    def __seed_events_month(year: int, month: int, region_id: str, names: List[str]) -> List[Event]:
+        events_month = []
+        num_events = random.randint(1, 3)
 
         for _ in range(num_events):
             day = random.randint(1, 28)
@@ -74,7 +96,7 @@ class EventSeeder(BaseService[Event]):
 
             event = Event(
                 region_id=region_id,
-                name=f"Event {random.randint(1, 1000)}",
+                name=random.choice(names),
                 location=f"Location {random.choice(['A', 'B', 'C'])}",
                 participants_count=random.randint(50, 200),
                 start_date=start_date,
@@ -88,7 +110,9 @@ class EventSeeder(BaseService[Event]):
                 is_approved_event=random.choice([True, False])
             )
 
-            return event
+            events_month.append(event)
+
+        return events_month
 
     @staticmethod
     def __seed_teams_results(regions: List[Region], names: List[str]) -> List[TeamResult]:

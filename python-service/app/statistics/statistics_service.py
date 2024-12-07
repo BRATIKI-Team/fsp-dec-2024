@@ -1,13 +1,11 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from fastapi import Depends
-from nltk.sem.chat80 import region
 
 from app.data.domains.event import Event
 from app.data.domains.statistics import Statistics
-from app.data.domains.team_result import TeamResult, TeamPlace
+from app.data.domains.team_result import TeamPlace
 from app.data.repositories.statistics_repository import StatisticsRepository
-from app.services.event_service import EventService
 from app.services.region_service import RegionService
 
 
@@ -15,19 +13,13 @@ class StatisticsService:
     def __init__(
             self,
             region_service: Annotated[RegionService, Depends(RegionService)],
-            event_service: Annotated[EventService, Depends(EventService)],
             statistics_repository: Annotated[StatisticsRepository, Depends(StatisticsRepository)]
     ):
         self._region_service = region_service
-        self._event_service = event_service
         self._statistics_repository = statistics_repository
 
 
-    async def on_event_result_added(self, event_id: str) -> None:
-        event = await self._event_service.get(event_id)
-        if not event:
-            return
-
+    async def on_event_result_added(self, event: Event) -> None:
         region_stat = await self._statistics_repository.find_one({"region_id": event.region_id})
         region_stat_id = None if not region_stat else region_stat.id
         if not region_stat:

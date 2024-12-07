@@ -13,6 +13,7 @@ export default defineNuxtConfig({
     public: {
       backendUrl: process.env.NUXT_BACKEND_URL,
       privacyPolicyUrl: process.env.PRIVACY_POLICY_URL,
+      faqUrl: process.env.FAQ_URL,
     },
   },
   auth: {

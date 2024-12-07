@@ -2,7 +2,7 @@ from io import BytesIO
 from typing import Annotated, List
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from fastapi.responses import StreamingResponse, Response
+from fastapi.responses import StreamingResponse
 
 from app.core.dependencies import transliterate
 from app.data.domains.file_model import FileModel
@@ -16,6 +16,7 @@ async def list_all(
         file_service: Annotated[FileModelService, Depends(FileModelService)]
 ) -> List[FileModel]:
     return await file_service.get_all()
+
 
 @router.post("/upload", name="files:upload")
 async def upload_file(
@@ -48,6 +49,7 @@ async def download(
             "Content-Type": "application/octet-stream"
         }
     )
+
 
 @router.delete("/{file_id", name="files:delete-by-id")
 async def delete(
