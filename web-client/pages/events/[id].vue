@@ -3,6 +3,7 @@ import { definePageMeta } from '#imports';
 import { useAsyncData, useRoute, useRouter } from '#app';
 import useLoading from '~/composables/useLoading';
 import type { IEventDetail } from '~/types/dtos/event';
+import { EventRequestStatus } from '~/types/dtos/request';
 
 definePageMeta({
   auth: true,
@@ -14,10 +15,32 @@ const route = useRoute();
 const loading = useLoading();
 const api = useApi();
 
-const { data } = await useAsyncData<IEventDetail>('event_detail', async () => {
+const { data, refresh } = await useAsyncData<IEventDetail>(
+  'event_detail',
+  async () => {
+    loading.on_load_start();
+    return await api.events.find(route.params.id.toString()).then(
+      response => {
+        loading.on_load_end();
+        return response;
+      },
+      error => {
+        loading.on_error();
+        return error;
+      }
+    );
+  }
+);
+
+const event_request_create = (id: string) => {
+  if (loading.in_progress.value) {
+    return;
+  }
+
   loading.on_load_start();
-  return await api.events.find(route.params.id.toString()).then(
+  api.requests.create(id).then(
     response => {
+      refresh();
       loading.on_load_end();
       return response;
     },
@@ -26,10 +49,21 @@ const { data } = await useAsyncData<IEventDetail>('event_detail', async () => {
       return error;
     }
   );
-});
+};
 
 const go_back = () => router.back();
 const go_region = (id: string) => navigateTo(`/regions/${id}`);
+
+const button_tooltip = (item: IEventDetail): string | undefined => {
+  if (item.request === null) return 'Ваша заявка будет рассмотрена ЦП ФСП.';
+
+  if (item.request.status === EventRequestStatus.PENDING)
+    return 'Ваша заявка на рассмотрении в ЦП ФСП.';
+  if (item.request.status === EventRequestStatus.DECLINED)
+    return 'Ваша заявка была отклонена.';
+
+  return undefined;
+};
 </script>
 
 <template>
@@ -81,11 +115,22 @@ const go_region = (id: string) => navigateTo(`/regions/${id}`);
           <template #item></template>
         </UAccordion>
 
-        <UButton
-          class="ml-auto mt-8 w-full lg:w-fit"
-          block
-          variant="solid"
-          label="Подать заявку на внесение в ЕКП" />
+        <div class="mt-8 flex w-full">
+          <div class="lg:w-full"></div>
+
+          <UTooltip class="w-full lg:w-fit" :text="button_tooltip(data)">
+            <UButton
+              class="text-nowrap"
+              v-if="data.request?.status !== EventRequestStatus.APPROVED"
+              :loading="loading.in_progress.value"
+              loading-icon="i-heroicons-arrow-path"
+              @click="event_request_create(data.event.id)"
+              :disabled="data.request !== null"
+              block
+              variant="solid"
+              label="Подать заявку на внесение в ЕКП" />
+          </UTooltip>
+        </div>
       </div>
     </UCard>
   </div>

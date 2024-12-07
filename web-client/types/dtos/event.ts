@@ -1,4 +1,5 @@
 import type { IRegion } from '~/types/dtos/region';
+import type { IRequest } from '~/types/dtos/request';
 import type { IUser } from '~/types/dtos/user';
 
 export interface IEvent {
@@ -22,6 +23,7 @@ export interface IEventDetail {
   readonly region?: IRegion;
   readonly user?: IUser;
   readonly protocols: readonly string[];
+  readonly request: IRequest | null;
 }
 
 export interface IEventCreateRequest {

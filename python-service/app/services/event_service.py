@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 
 from fastapi import Depends
 
 from app.api.dto import SearchReq, Page
-from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
+from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event import Event
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
@@ -61,19 +61,8 @@ class EventService(BaseService[Event]):
 
         return list(disciplines)
 
-    async def search(self, req: 'SearchReq') -> Page[ExtendedEvent]:
-        page = await self._event_repository.search(req=req)
-        extended_events = []
-        for event in page.items:
-            extended_events.append(self.__map_to_extended_event(event))
-
-        return Page(
-            total=page.total,
-            page=page.page,
-            page_size=page.page_size,
-            items=extended_events,
-            more=page.more
-        )
+    async def search(self, req: SearchReq) -> Page[Event]:
+        return await self._event_repository.search(req=req)
 
     async def seed(self, region_id: str) -> bool:
         events = self.__stub_events(region_id)
@@ -128,23 +117,3 @@ class EventService(BaseService[Event]):
                 is_approved_event=False
             )
         ]
-
-    async def get(self, item_id: str) -> Optional[ExtendedEvent]:
-        """Get an item by its ID."""
-        event = await self.repository.get(item_id)
-        return await self.__map_to_extended_event(event)
-
-    async def __map_to_extended_event(self, event: Event) -> ExtendedEvent:
-        user = await self._user_service.get(event.member_created_id)
-        region = await self._region_service.get(event.region_id)
-
-        documents = [doc.get_dto() for doc in await self._file_service.get_many(event.documents_ids)]
-        protocols = [doc.get_dto() for doc in await self._file_service.get_many(event.protocols_ids)]
-
-        return ExtendedEvent(
-            user=user,
-            event=event,
-            region=region,
-            documents=documents,
-            protocols=protocols,
-        )

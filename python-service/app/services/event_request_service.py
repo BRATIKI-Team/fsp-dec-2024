@@ -1,9 +1,8 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from fastapi import Depends
 
 from app.api.dto.event_request_dto import SendEventRequestResult
-from app.data.domains.event import Event
 from app.data.domains.event_request import EventRequest, EventRequestStatus
 from app.data.repositories.event_request_repository import EventRequestRepository
 from app.services.base_service import BaseService
@@ -71,6 +70,7 @@ class EventRequestService(BaseService[EventRequest]):
         filters = {"region_id": region_id}
         return await super().filter(filters)
 
-    async def get_by_event_id(self, event_id: str) -> EventRequest:
+    async def get_by_event_id(self, event_id: str) -> Optional[EventRequest]:
         filters = {"event_id": event_id}
-        return (await super().filter(filters))[0]
+        result = await super().filter(filters)
+        return result[0] if len(result) else None

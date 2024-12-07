@@ -28,4 +28,4 @@ class ExtendedEvent(BaseModel):
     user: Optional[User]
     documents: List[FileModelDto]
     protocols: List[FileModelDto]
-    request: EventRequest
+    request: Optional[EventRequest]

@@ -10,6 +10,8 @@ import useLoading from '~/composables/useLoading';
 import useApi from '~/composables/useApi';
 import Autocomplete_disciplines from '~/components/autocomplete_disciplines.vue';
 import Autocomplete_regions from '~/components/autocomplete_regions.vue';
+import { EventRequestStatus } from '~/types/dtos/request';
+import type { Badge } from '#ui/types';
 
 definePageMeta({
   auth: true,
@@ -66,6 +68,22 @@ const event_features = (item: IEventDetail) =>
   [item.region?.name, item.event.discipline].filter(
     (x): x is string => x !== undefined
   );
+
+const event_status = (item: IEventDetail): Badge | undefined => {
+  if (item.request === null) return undefined;
+
+  if (item.request.status === EventRequestStatus.PENDING) {
+    return { label: 'В обработке' };
+  }
+  if (item.request.status === EventRequestStatus.APPROVED) {
+    return { label: 'Включён в ЕКП' };
+  }
+
+  return undefined;
+};
+
+const event_date_range = (item: IEventDetail): string =>
+  `${item.event.start_date.toLocaleDateString()} - ${item.event.end_date.toLocaleDateString()}`;
 
 const on_item_click = (item: IEventDetail) =>
   navigateTo(`/events/${item.event.id}`);
@@ -125,14 +143,12 @@ watch(
       class="cursor-pointer hover:scale-[101%]"
       v-for="item in response_state.items"
       v-on:click="on_item_click(item)"
+      :badge="event_status(item)"
       :title="item.event.name"
       :description="item.event.description"
-      :price="
-        item.event.start_date.toLocaleDateString() +
-        ' ' +
-        item.event.end_date.toLocaleDateString()
-      "
+      :price="event_date_range(item)"
       :features="event_features(item)"
+      :ui="{ amount: { price: 'sm:text-3xl' } }"
       orientation="horizontal" />
 
     <UCard class="text-center" v-if="response_state.items.length === 0"
@@ -143,6 +159,7 @@ watch(
       v-if="response_state.more"
       v-on:click="search()"
       :loading="loading.in_progress.value"
+      loading-icon="i-heroicons-arrow-path"
       label="Загрузить ещё..."
       variant="outline"
       size="xl"

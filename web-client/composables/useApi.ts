@@ -35,6 +35,15 @@ export default () => {
       ...events_api.map_detail_after_request(response),
     }));
 
+  const event_request_create = (event_id: string) =>
+    $fetch(
+      helpers_api.REQUEST_URL(`/event-requests/${event_id}/send_request`),
+      {
+        method: 'POST',
+        headers: helpers_api.AUTH_HEADERS(),
+      }
+    );
+
   const regions_all = () =>
     $fetch<readonly IRegion[]>(helpers_api.REQUEST_URL('/regions/get-all'), {
       method: 'GET',
@@ -76,6 +85,9 @@ export default () => {
     },
     disciplines: {
       all: disciplines_all,
+    },
+    requests: {
+      create: event_request_create,
     },
   };
 };
