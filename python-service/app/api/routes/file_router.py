@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from fastapi.responses import Response
 
+from app.core.dependencies import transliterate
 from app.services.file_model_service import FileService
 
 router = APIRouter()
@@ -30,6 +31,6 @@ async def download(
         content=file.file_data,
         media_type=file.file_type,
         headers = {
-            "Content-Disposition": f"attachment; filename*=UTF-8''{file.file_name}"
+            "Content-Disposition": f"attachment; filename*=UTF-8''{transliterate(file.file_name)}"
         }
     )

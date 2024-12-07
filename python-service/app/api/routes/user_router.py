@@ -62,7 +62,7 @@ async def get_me(
         user_id: Annotated[str, Depends(AuthService.require_user_id)],
         user_service: Annotated[UserService, Depends(UserService)]
 ) -> User:
-    return await user_service.get(user_id)
+    return await user_service.get_me(user_id)
 
 
 @router.get("/{user_id}", name="users:get-by-id")

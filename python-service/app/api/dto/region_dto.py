@@ -5,10 +5,13 @@ from pydantic import BaseModel
 from app.data.domains.contacts import Contacts
 
 
-class Region(BaseModel):
+class RegionDto(BaseModel):
     id: Optional[str] = None
     name: str
     description: str
-    is_main: bool
+    isMain: bool
     contacts: Contacts
-    admin_id: str
+    admin: "UserDto"
+
+from app.api.dto.user_dto import UserDto
+RegionDto.model_rebuild()
