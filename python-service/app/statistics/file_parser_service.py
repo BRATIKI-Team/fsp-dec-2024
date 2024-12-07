@@ -34,9 +34,6 @@ class FileParserService:
             case "text/csv":
                 data = self.__parse_csv_file(file_model)
 
-        if data:
-
-
     async def __compile_data(self, data_frame: pd.DataFrame) -> List[TeamResult]:
         team_results = []
 
