@@ -3,6 +3,7 @@ from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, Body
 
 from app.api.dto import SearchReq, Page
+from app.api.dto.region_dto import RegionCreateReq
 from app.data.domains.region import Region
 from app.services.auth_service import AuthService
 from app.services.region_service import RegionService
@@ -60,3 +61,18 @@ async def search(
         region_service: Annotated[RegionService, Depends(RegionService)],
 ) -> Page[Region]:
     return await region_service.search(page)
+
+
+@router.post("/create", name="regions:create")
+async def create(
+        require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
+        req: RegionCreateReq,
+        region_service: Annotated[RegionService, Depends(RegionService)],
+) -> str:
+    model = Region(
+        name=req.name,
+        subject=req.subject,
+        is_main=req.is_main,
+    )
+
+    return await region_service.create(model)

@@ -11,9 +11,9 @@ class Region(BaseModel):
     name: str
     subject: str
     description: Optional[str] = None
-    person: Optional[str]
+    person: Optional[str] = None
     is_main: bool
-    contacts: Optional[Contacts]
+    contacts: Optional[Contacts] = Contacts(email="", phone="")
     admin_id: Optional[str] = None
 
 
