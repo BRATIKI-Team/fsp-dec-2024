@@ -60,6 +60,7 @@ class EventService(BaseService[Event]):
             extended_events.append(ExtendedEvent(event=event, user=user, region=region))
 
         return Page(
+            total=page.total,
             page=page.page,
             page_size=page.page_size,
             items=extended_events,

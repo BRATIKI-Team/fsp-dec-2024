@@ -8,10 +8,12 @@ T = TypeVar('T', bound=BaseModel)
 
 @dataclass
 class Page(Generic[T]):
+    total: int
     page: int
     page_size: int
     items: List[T]
     more: bool
+
 
 
 class Criterion(BaseModel):

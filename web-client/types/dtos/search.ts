@@ -10,6 +10,7 @@ export interface ISearchRequest {
 }
 
 export interface ISearchResponse<T> {
+  readonly total: number;
   readonly page: number;
   readonly page_size: number;
   readonly items: readonly T[];

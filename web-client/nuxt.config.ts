@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxt/image'],
+  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxt/image', '@vee-validate/nuxt',],
   extends: ['@nuxt/ui-pro'],
   runtimeConfig: {
     public: {
@@ -40,8 +40,24 @@ export default defineNuxtConfig({
         dataType: {
           id: 'string',
           email: 'string',
+          region: {
+            id: 'string'
+          }
         },
       },
     },
   },
+  tailwindcss: {
+    config: {
+      theme: {
+        extend: {
+          colors: {
+            elevated: '#F1F5F9',
+            dimmed: '#94A3B8',
+            accented: '#CBD5E1',
+          },
+        }
+      },
+    }
+  }
 });

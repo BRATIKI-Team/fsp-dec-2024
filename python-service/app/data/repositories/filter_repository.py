@@ -50,7 +50,7 @@ class FilterRepository(Generic[TEnum]):
     def __get_filter_map_item_by_criterion(criterion: Criterion, filters: List[FilterMapItem[TEnum]]) -> FilterMapItem[
         TEnum]:
         for filter_model in filters:
-            if filter_model.type.value == criterion.field:
+            if filter_model.field == criterion.field:
                 return filter_model
         raise Exception("Filter not found")
 

@@ -5,6 +5,11 @@ export interface IUser {
   readonly email: string;
   readonly role: UserRole;
   readonly region: IRegion | null;
+  readonly contacts: {
+    readonly email: string
+    readonly phone: string
+    readonly social_links: string[]
+  }
 }
 
 export enum UserRole {

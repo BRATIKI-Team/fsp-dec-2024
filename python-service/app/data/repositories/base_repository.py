@@ -56,6 +56,7 @@ class BaseRepository:
         documents = await cursor.skip((req.page - 1) * req.page_size).to_list(req.page_size + 1)
 
         return Page(
+            total=len(documents),
             page=req.page,
             page_size=req.page_size,
             items=[self._document_to_model(doc) for doc in documents[:req.page_size]],
