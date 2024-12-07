@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
-import type { IEvent } from '~/types/dtos/event';
+import { definePageMeta } from '#imports';
+import type {
+  ICriterion,
+  ISearchRequest,
+  ISearchResponse,
+} from '~/types/dtos/search';
+import type { IEventDetail } from '~/types/dtos/event';
 import useLoading from '~/composables/useLoading';
+import useApi from '~/composables/useApi';
+import Autocomplete_disciplines from '~/components/autocomplete_disciplines.vue';
+import Autocomplete_regions from '~/components/autocomplete_regions.vue';
 
 definePageMeta({
   auth: true,
@@ -11,7 +19,10 @@ definePageMeta({
 const api = useApi();
 const loading = useLoading();
 
-const response_state = useState<ISearchResponse<IEvent>>(
+const disciplines_filter = ref<string | undefined>();
+const regions_filter = ref<string | undefined>();
+
+const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
   () => ({
     page: 0,
@@ -50,21 +61,62 @@ const search = () => {
   );
 };
 
-const event_features = (item: IEvent) =>
-  [item.region?.name, item.discipline].filter(
+const event_features = (item: IEventDetail) =>
+  [item.region?.name, item.event.discipline].filter(
     (x): x is string => x !== undefined
   );
 
-search();
+watch(
+  () => [regions_filter.value, disciplines_filter.value],
+  () => {
+    const criteria: readonly ICriterion[] = [
+      {
+        field: 'regions',
+        value: [regions_filter.value],
+      },
+      {
+        field: 'disciplines',
+        value: [disciplines_filter.value],
+      },
+    ].filter((item): item is ICriterion => !item.value.includes(undefined));
+
+    request_state.value = {
+      page: 1,
+      page_size: 10,
+      criteria: criteria,
+    };
+
+    response_state.value = {
+      page: 0,
+      page_size: 10,
+      items: [],
+      more: false,
+    };
+
+    search();
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
+  <UAccordion
+    class="mt-8 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
+    :items="[{ label: 'Фильтры', icon: 'i-heroicons-adjustments-horizontal' }]">
+    <template #item>
+      <div class="flex flex-col gap-3">
+        <autocomplete_disciplines v-model="disciplines_filter" />
+        <autocomplete_regions v-model="regions_filter" />
+      </div>
+    </template>
+  </UAccordion>
+
   <UPricingCard
     class="lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
     v-for="item in response_state.items"
-    :title="item.name"
-    :description="item.description"
-    :price="item.datetime.toLocaleDateString()"
+    :title="item.event.name"
+    :description="item.event.description"
+    :price="item.event.datetime.toLocaleDateString()"
     :features="event_features(item)"
     orientation="horizontal" />
 
@@ -74,5 +126,6 @@ search();
     v-on:click="search()"
     :loading="loading.in_progress.value"
     label="Загрузить ещё..."
+    variant="soft"
     block />
 </template>
