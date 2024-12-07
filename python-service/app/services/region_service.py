@@ -1,4 +1,5 @@
-from typing import Annotated
+import json
+from typing import Annotated, List
 
 from fastapi import Depends, HTTPException, status
 
@@ -19,9 +20,17 @@ class RegionService(BaseService[Region]):
         self.region_repository = region_repository
         self.user_service = user_service
 
+    # async def seed(self) -> bool:
+    #     regions = self.__stub_regions()
+    #     for region in regions:
+    #         await self.create(region)
+    #
+    #     return True
+
     async def seed(self) -> bool:
-        regions = self.__stub_regions()
+        regions = self.__load_regions_from_file('app/docs/regions.json')
         for region in regions:
+            print(f"Creating region: {region})")
             await self.create(region)
 
         return True
@@ -56,23 +65,43 @@ class RegionService(BaseService[Region]):
         return await self.user_service.update(user_id, user)
 
     @staticmethod
-    def __stub_regions() -> list[Region]:
-        return [
-            Region(
-                name="North Region",
-                description="Region characterized by mountain landscapes.",
-                is_main=True,
-                contacts=Contacts(email="north@example.com", phone="123-456-7890", social_links=[""])
-            ),
-            Region(
-                name="South Region",
-                description="Region known for its sunny beaches.",
-                is_main=False,
-                contacts=Contacts(email="south@example.com", phone="234-567-8901", social_links=[""])
-            ),
-            Region(
-                name="East Region",
-                description="Region with a rich cultural heritage.",
-                is_main=False,
-                contacts=Contacts(email="east@example.com", phone="345-678-9012", social_links=[""])
-            )]
+    def __load_regions_from_file(file_path: str) -> List[Region]:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+
+        regions = []
+        for item in json_data:
+            contacts = Contacts(email=item["email"])
+            region = Region(
+                name=item["region"],
+                description=item["subject"],
+                person=item.get("person"),
+                contacts=contacts,
+                is_main=False
+            )
+            regions.append(region)
+
+        regions[0].is_main = True
+        return regions
+
+    # @staticmethod
+    # def __stub_regions() -> list[Region]:
+    #     return [
+    #         Region(
+    #             name="North Region",
+    #             description="Region characterized by mountain landscapes.",
+    #             is_main=True,
+    #             contacts=Contacts(email="north@example.com", phone="123-456-7890", social_links=[""])
+    #         ),
+    #         Region(
+    #             name="South Region",
+    #             description="Region known for its sunny beaches.",
+    #             is_main=False,
+    #             contacts=Contacts(email="south@example.com", phone="234-567-8901", social_links=[""])
+    #         ),
+    #         Region(
+    #             name="East Region",
+    #             description="Region with a rich cultural heritage.",
+    #             is_main=False,
+    #             contacts=Contacts(email="east@example.com", phone="345-678-9012", social_links=[""])
+    #         )]
