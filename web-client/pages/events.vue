@@ -100,32 +100,38 @@ watch(
 </script>
 
 <template>
-  <UAccordion
-    class="mt-8 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
-    :items="[{ label: 'Фильтры', icon: 'i-heroicons-adjustments-horizontal' }]">
-    <template #item>
-      <div class="flex flex-col gap-3">
-        <autocomplete_disciplines v-model="disciplines_filter" />
-        <autocomplete_regions v-model="regions_filter" />
-      </div>
-    </template>
-  </UAccordion>
+  <div
+    class="mt-8 flex flex-col gap-8 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
+    <UAccordion
+      :items="[
+        { label: 'Фильтры', icon: 'i-heroicons-adjustments-horizontal' },
+      ]">
+      <template #item>
+        <div class="flex flex-col gap-3">
+          <autocomplete_disciplines v-model="disciplines_filter" />
+          <autocomplete_regions v-model="regions_filter" />
+        </div>
+      </template>
+    </UAccordion>
 
-  <UPricingCard
-    class="lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
-    v-for="item in response_state.items"
-    :title="item.event.name"
-    :description="item.event.description"
-    :price="item.event.datetime.toLocaleDateString()"
-    :features="event_features(item)"
-    orientation="horizontal" />
+    <UPricingCard
+      v-for="item in response_state.items"
+      :title="item.event.name"
+      :description="item.event.description"
+      :price="item.event.datetime.toLocaleDateString()"
+      :features="event_features(item)"
+      orientation="horizontal" />
 
-  <UButton
-    class="lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3"
-    v-if="response_state.more"
-    v-on:click="search()"
-    :loading="loading.in_progress.value"
-    label="Загрузить ещё..."
-    variant="soft"
-    block />
+    <UCard class="text-center" v-if="response_state.items.length === 0"
+      >К сожалению, здесь ничего нет :( Попробуйте поменять фильтры.
+    </UCard>
+
+    <UButton
+      v-if="response_state.more"
+      v-on:click="search()"
+      :loading="loading.in_progress.value"
+      label="Загрузить ещё..."
+      variant="soft"
+      block />
+  </div>
 </template>
