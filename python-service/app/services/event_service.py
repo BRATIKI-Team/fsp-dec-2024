@@ -6,7 +6,7 @@ from app.api.dto import SearchReq, Page
 from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event import Event
 from app.data.repositories.event_repository import EventRepository
-from app.generator.EventSeeder import EventSeeder
+from app.generator.event_seeder import EventSeeder
 from app.services.base_service import BaseService
 from app.services.file_model_service import FileModelService
 from app.services.region_service import RegionService

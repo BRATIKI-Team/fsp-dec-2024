@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from app.data.domains.region import Region
 from app.data.domains.user import UserRole
 from app.data.repositories.region_repository import RegionRepository
-from app.generator.RegionSeeder import RegionSeeder
+from app.generator.region_seeder import RegionSeeder
 from app.services.base_service import BaseService
 from app.services.user_service import UserService
 
