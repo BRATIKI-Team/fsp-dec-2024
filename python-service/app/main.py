@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import user_router, region_router, event_router, event_request_router, file_router, \
-    member_request_router
+    member_request_router, statistics_router
 
 from app.api.routes import user_router, region_router, event_router, seeder_router
 
@@ -29,6 +29,7 @@ def get_application() -> FastAPI:
     application.include_router(seeder_router.router, tags=["seeders"], prefix="/seeders")
     application.include_router(file_router.router, tags=["files"], prefix="/files")
     application.include_router(member_request_router.router, tags=["member-requests"], prefix="/member-reqs")
+    application.include_router(statistics_router.router, tags=["statistics"], prefix="/statistics")
 
     return application
 
