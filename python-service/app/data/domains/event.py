@@ -4,6 +4,8 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
+from app.data.domains.team_result import TeamResult
+
 
 class Event(BaseModel):
     id: Optional[str] = None
@@ -16,9 +18,11 @@ class Event(BaseModel):
     member_created_id: Optional[str] = None
     discipline: Optional[str] = None
     description: Optional[str] = None
-    documents_ids: List[str] = []
-    protocols_ids: List[str] = []
+    documents_ids: List[str]
+    protocols_ids: List[str]
+    teams_results: List[TeamResult]
     is_approved_event: bool
+
 
 class EventFilter(str, Enum):
     regions = 'regions'
