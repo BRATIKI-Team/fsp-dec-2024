@@ -25,8 +25,9 @@ class EventSeeder(BaseService[Event]):
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
         names = self.__get_names_from_file('app/generator/docs/names.json')
+        event_names = self.__get_names_from_file('app/generator/docs/event_names.json')
         for region in regions:
-            events = self.__seed_events(region.id)
+            events = self.__seed_events(region.id, event_names)
 
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
@@ -52,17 +53,17 @@ class EventSeeder(BaseService[Event]):
             print(f"An error occurred: {e}")
         return []
 
-    def __seed_events(self, region_id: str) -> list[Event]:
+    def __seed_events(self, region_id: str, names: List[str]) -> list[Event]:
         events = []
         for year in range(2022, 2025):
             for month in range(1, 13):
-                event = self.__seed_event(year, month, region_id)
+                event = self.__seed_event(year, month, region_id, names)
                 events.append(event)
 
         return events
 
     @staticmethod
-    def __seed_event(year: int, month: int, region_id: str) -> Event:
+    def __seed_event(year: int, month: int, region_id: str, names: List[str]) -> Event:
 
         num_events = random.randint(1, 10)
 
@@ -74,7 +75,7 @@ class EventSeeder(BaseService[Event]):
 
             event = Event(
                 region_id=region_id,
-                name=f"Event {random.randint(1, 1000)}",
+                name=random.choice(names),
                 location=f"Location {random.choice(['A', 'B', 'C'])}",
                 participants_count=random.randint(50, 200),
                 start_date=start_date,
