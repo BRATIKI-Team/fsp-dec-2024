@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import Annotated, List
 
 from fastapi import Depends
+from pydantic import BaseModel
 
 from app.data.domains.event import Event
 from app.data.domains.region import Region
@@ -11,6 +12,11 @@ from app.data.domains.team_result import TeamResult, TeamPlace
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
 from app.services.region_service import RegionService
+
+
+class EventInfo(BaseModel):
+    name: str
+    description: str
 
 
 class EventSeeder(BaseService[Event]):
@@ -25,9 +31,9 @@ class EventSeeder(BaseService[Event]):
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
         names = self.__get_names_from_file('app/generator/docs/names.json')
-        event_names = self.__get_names_from_file('app/generator/docs/event_names.json')
+        event_info_list = self.__get_event_info_list_from_file('app/generator/docs/events_info.json')
         for region in regions:
-            events = self.__seed_events(region.id, event_names)
+            events = self.__seed_events(region.id, event_info_list)
 
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
@@ -53,18 +59,33 @@ class EventSeeder(BaseService[Event]):
             print(f"An error occurred: {e}")
         return []
 
-    def __seed_events(self, region_id: str, names: List[str]) -> list[Event]:
+    @staticmethod
+    def __get_event_info_list_from_file(file_path: str) -> List[EventInfo]:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            json_data = json.load(f)
+
+        events_info = []
+        for item in json_data:
+            event_info = EventInfo(
+                name=item["name"],
+                description=item["description"],
+            )
+            events_info.append(event_info)
+
+        return events_info
+
+    def __seed_events(self, region_id: str, event_info_list: List[EventInfo]) -> list[Event]:
         events = []
         for year in range(2022, 2025):
             for month in range(1, 13):
-                events_month = self.__seed_events_month(year, month, region_id, names)
+                events_month = self.__seed_events_month(year, month, region_id, event_info_list)
                 for event in events_month:
                     events.append(event)
 
         return events
 
     @staticmethod
-    def __seed_events_month(year: int, month: int, region_id: str, names: List[str]) -> List[Event]:
+    def __seed_events_month(year: int, month: int, region_id: str, event_info_list: List[EventInfo]) -> List[Event]:
         events_month = []
         num_events = random.randint(1, 3)
 
@@ -73,10 +94,10 @@ class EventSeeder(BaseService[Event]):
             start_date = datetime(year, month, day)
             duration = random.randint(1, 5)
             end_date = start_date + timedelta(days=duration)
-
+            event_info: EventInfo = random.choice(event_info_list)
             event = Event(
                 region_id=region_id,
-                name=random.choice(names),
+                name=event_info.name,
                 location=f"Location {random.choice(['A', 'B', 'C'])}",
                 participants_count=random.randint(50, 200),
                 start_date=start_date,
@@ -86,7 +107,7 @@ class EventSeeder(BaseService[Event]):
                      'Продуктовое Программирование',
                      'Алгоритмическое Программирование'
                      ]),
-                description="Auto-generated event",
+                description=event_info.description,
                 is_approved_event=random.choice([True, False])
             )
 
