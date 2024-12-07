@@ -7,6 +7,7 @@ import type {
 } from '~/types/dtos/event';
 import type { IRegion } from '~/types/dtos/region';
 import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
+import type { IMemberRequest } from '~/types/dtos/member_request';
 
 export default () => {
   const events_api = useEvents();
@@ -62,6 +63,12 @@ export default () => {
       headers: helpers_api.AUTH_HEADERS(),
     });
 
+  const member_reqs_all = (region: string) =>
+    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${region}`), {
+      method: 'GET',
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
   return {
     events: {
       search: events_search,
@@ -82,6 +89,9 @@ export default () => {
     regions: {
       all: regions_all,
       find: region_by_id,
+    },
+    member_reqs: {
+      all: member_reqs_all,
     },
     disciplines: {
       all: disciplines_all,

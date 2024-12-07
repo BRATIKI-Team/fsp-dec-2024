@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import { format } from 'date-fns';
+
 const columns = [
   { key: 'name', label: 'Имя' },
   { key: 'email', label: 'Email' },
@@ -7,6 +9,7 @@ const columns = [
 ];
 
 const api = useApi();
+const {getSession} = useAuth()
 const loading = ref(false);
 
 const page = ref(1);
@@ -16,6 +19,25 @@ const users = useState(() => ({
   items: [],
   total: 1,
 }));
+
+const updateState = async () => {
+  loading.value = true;
+  const me = await getSession()
+  const reqs = await api.member_reqs.all(me?.region.id);
+  loading.value = false;
+  return {
+    items: events.items.map(i => {
+      const datetime = format(i.event.start_date, 'dd.MM.yyyy') + " - " + format(i.event.end_date, 'dd.MM.yyyy')
+      return {
+        ...i.event,
+        datetime: datetime,
+        region: i.region?.name,
+        regionEmail: i.region?.contacts.email,
+      }
+    }),
+    total: events.total,
+  };
+}
 
 definePageMeta({
   layout: 'lk',
@@ -45,7 +67,7 @@ definePageMeta({
     <UTable
       :rows="users.items"
       :columns="columns"
-      :loading="loading.in_progress.value"
+      :loading="loading"
       :progress="{ color: 'primary', animation: 'carousel' }">
       <template #actions-data="{ row }"> </template>
       <template #empty-state>

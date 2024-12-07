@@ -36,6 +36,8 @@ class MemberRequestService(BaseService[MemberRequest]):
         return SendEventRequestResult()
 
     async def get_by_region_id(self, region_id: str) -> List[MemberRequest]:
+        requests = await self._member_request_repository.filter({"region_id": region_id, "status": "pending"})
+
         return await self._member_request_repository.filter({"region_id": region_id, "status": "pending"})
 
     async def set_status(self, req_id, req_status: MemberRequestStatus) -> bool:

@@ -52,7 +52,7 @@ class FilterRepository(Generic[TEnum]):
         TEnum]:
         print(criterion, filters)
         for filter_model in filters:
-            if filter_model.type == criterion.field:
+            if filter_model.field == criterion.field:
                 return filter_model
         raise Exception("Filter not found")
 
