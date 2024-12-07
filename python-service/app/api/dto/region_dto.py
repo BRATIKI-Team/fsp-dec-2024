@@ -9,7 +9,7 @@ class RegionDto(BaseModel):
     id: Optional[str] = None
     name: str
     description: str
-    isMain: bool
+    is_main: bool
     contacts: Contacts
     admin: "UserDto"
 

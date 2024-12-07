@@ -39,14 +39,20 @@ class UserService(BaseService[User]):
         if not user:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
+
         region_model = None if user.region_id is None else await self._region_repository.get(user.region_id)
-        region_admin = None if region_model.admin_id is None else await self._user_repository.get(region_model.admin_id)
-        admin_dto = UserDto(
-            id=region_admin.id,
-            email=region_admin.email,
-            role=region_admin.role,
-            region=None
-        )
+        region_admin = None
+        if region_model is not None and region_model.admin_id is not None:
+            region_admin = await self._user_repository.get(region_model.admin_id)
+
+        admin_dto = None
+        if region_admin is not None:
+            admin_dto = None if region_admin is None else UserDto(
+                id=region_admin.id,
+                email=region_admin.email,
+                role=region_admin.role,
+                region=None
+            )
 
         region_dto = None if not region_model else RegionDto(
             id=region_model.id,
