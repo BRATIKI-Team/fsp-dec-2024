@@ -189,9 +189,11 @@ class AuthService:
     @classmethod
     def require_member(
             cls,
-            token: Annotated[str, Depends(OAuth2PasswordBearer)]
-    ) -> None:
+            token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="token"))]
+    ) -> bool:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
         user_role = payload.get("role")
+        # ADMIN has the same privileges as MEMBER
         if user_role != UserRole.ADMIN or user_role != UserRole.MEMBER:
             raise Exception("You have no permissions")
+        return True

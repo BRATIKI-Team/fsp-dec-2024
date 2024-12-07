@@ -25,6 +25,10 @@ class BaseService(Generic[T]):
         """Get an item by its ID."""
         return await self.repository.get(item_id)
 
+    async def get_many(self, item_ids: List[str]):
+        """Get multiple documents by their IDs."""
+        return await self.repository.get_many(item_ids)
+
     async def get_all(self) -> List[T]:
         """All items in collection"""
         return await self.repository.get_all()

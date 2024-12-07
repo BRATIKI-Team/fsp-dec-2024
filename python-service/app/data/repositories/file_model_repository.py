@@ -1,3 +1,4 @@
+import base64
 from typing import Annotated, Dict
 
 from fastapi import Depends
@@ -13,4 +14,5 @@ class FileRepository(BaseRepository):
         super().__init__(db, "files")
 
     def serialize(self, document: Dict) -> FileModel:
+        document["file_data"] = base64.b64encode(document["file_data"]).decode('utf-8')
         return FileModel(**document)

@@ -19,7 +19,7 @@ class RegionService(BaseService[Region]):
         self.region_repository = region_repository
         self.user_service = user_service
 
-    async def seeder(self) -> bool:
+    async def seed(self) -> bool:
         regions = self.__stub_regions()
         for region in regions:
             await self.create(region)

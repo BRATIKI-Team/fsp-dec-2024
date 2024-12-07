@@ -4,12 +4,13 @@ from typing import Annotated
 from bson import Binary
 from fastapi import Depends, UploadFile
 
+from app.core.dependencies import transliterate
 from app.data.domains.file_model import FileModel
 from app.data.repositories.file_model_repository import FileRepository
 from app.services.base_service import BaseService
 
 
-class FileService(BaseService[FileModel]):
+class FileModelService(BaseService[FileModel]):
     def __init__(
             self,
             file_repository: Annotated[FileRepository, Depends(FileRepository)]

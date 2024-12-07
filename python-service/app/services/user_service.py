@@ -24,7 +24,7 @@ class UserService(BaseService[User]):
     async def get_user_by_email(self, email: EmailStr) -> Optional[User]:
         return await self._user_repository.get_user_by_email(email)
 
-    async def seeder_super_admin(self) -> bool:
+    async def seed_super_admin(self) -> bool:
         await self.create(
             User(
                 email="superadmin@gmail.com",

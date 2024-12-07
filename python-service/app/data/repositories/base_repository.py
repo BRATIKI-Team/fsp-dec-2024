@@ -29,7 +29,7 @@ class BaseRepository:
     async def update(self, item_id: str, item: T) -> bool:
         """Update an existing document by ID."""
         document = item.model_dump()
-        del document["id"]
+        document.pop("id", None)
         result = await self.collection.update_one(
             {"_id": ObjectId(item_id)},
             {"$set": document}
@@ -42,6 +42,12 @@ class BaseRepository:
         if document:
             return self._document_to_model(dict(document))
         return document
+
+    async def get_many(self, item_ids: List[str]) -> List[T]:
+        """Get multiple documents by their IDs."""
+        object_ids = [ObjectId(item_id) for item_id in item_ids]
+        documents = await self.collection.find({"_id": {"$in": object_ids}}).to_list(None)
+        return [self._document_to_model(doc) for doc in documents]
 
     async def get_all(self) -> List[T]:
         documents = await self.collection.find().to_list(None)

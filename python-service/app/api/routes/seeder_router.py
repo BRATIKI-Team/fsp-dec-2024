@@ -13,20 +13,19 @@ router = APIRouter()
 async def super_admin(
         user_service: Annotated[UserService, Depends(UserService)]
 ) -> bool:
-    return await user_service.seeder_super_admin()
+    return await user_service.seed_super_admin()
 
 
-@router.post("/regions", name="seeders:regions")
+@router.post("/seed-regions", name="seeders:regions")
 async def regions(
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
-    return await region_service.seeder()
+    return await region_service.seed()
 
 
-@router.post("/events/{user_id}/{region_id}", name="seeders:events")
+@router.post("/{region_id}/seed-events", name="seeders:events")
 async def regions(
-        user_id: str,
         region_id: str,
         events_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
-    return await events_service.seeder(user_id, region_id)
+    return await events_service.seed(region_id)

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Body
 
 from app.api.dto.event_request_dto import SendRequestResult
 from app.data.domains.event_request import EventRequest
+from app.services.auth_service import AuthService
 from app.services.event_request_service import EventRequestService
 
 router = APIRouter()
@@ -12,6 +13,7 @@ router = APIRouter()
 
 @router.get("/list-all", name="event-requests:list-all")
 async def list_all(
+        require_member: Annotated[bool, Depends(AuthService.require_member)],
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
 ) -> List[EventRequest]:
     return await event_request_service.get_all()

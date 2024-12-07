@@ -6,8 +6,10 @@ from fastapi import Depends
 from app.api.dto import SearchReq, Page
 from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
 from app.data.domains.event import Event
+from app.data.domains.file_model import FileModel
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
+from app.services.file_model_service import FileModelService
 from app.services.region_service import RegionService
 from app.services.user_service import UserService
 
@@ -17,27 +19,32 @@ class EventService(BaseService[Event]):
             self,
             user_service: Annotated[UserService, Depends(UserService)],
             region_service: Annotated[RegionService, Depends(RegionService)],
-            event_repository: Annotated[EventRepository, Depends(EventRepository)]
+            event_repository: Annotated[EventRepository, Depends(EventRepository)],
+            file_service: Annotated[FileModelService, Depends(FileModelService)]
     ):
         super().__init__(event_repository)
         self._user_service = user_service
         self._event_repository = event_repository
         self._region_service = region_service
+        self._file_service = file_service
 
     async def create_event(self, user_id: str, create_event_dto: CreateEventReq) -> bool:
         user = await self._user_service.get(user_id)
-        # if user.region_id is None:
-        #     raise Exception("Has no permission")
-        region_id = "675323b351c0c41c65646946"
+        if user.region_id is None:
+             raise Exception("Has no permission")
+
         event = Event(
-            region_id=region_id,
+            region_id=user.region_id,
             member_created_id=user_id,
             name=create_event_dto.name,
             discipline=create_event_dto.discipline,
             description=create_event_dto.description,
             datetime=create_event_dto.datetime,
+            documents_ids=create_event_dto.documents_ids,
+            protocols_ids=create_event_dto.protocols_ids,
             is_approved_event=False
         )
+
         event_id = await super().create(event)
         return event_id is not None
 
@@ -57,7 +64,11 @@ class EventService(BaseService[Event]):
         for event in page.items:
             user = await self._user_service.get(event.member_created_id)
             region = await self._region_service.get(event.region_id)
-            extended_events.append(ExtendedEvent(event=event, user=user, region=region))
+
+            documents = [doc.get_dto() for doc in await self._file_service.get_many(event.documents_ids)]
+            protocols = [doc.get_dto() for doc in await self._file_service.get_many(event.protocols_ids)]
+
+            extended_events.append(ExtendedEvent(event=event, user=user, region=region, documents=documents, protocols=protocols))
 
         return Page(
             total=page.total,
@@ -67,41 +78,44 @@ class EventService(BaseService[Event]):
             more=page.more
         )
 
-    async def seeder(self, user_id: str, region_id: str) -> bool:
-        events = self.__stub_events(user_id, region_id)
+    async def seed(self, region_id: str) -> bool:
+        events = self.__stub_events(region_id)
         for event in events:
             await self.create(event)
 
         return True
 
     @staticmethod
-    def __stub_events(user_id: str, region_id: str) -> list[Event]:
+    def __stub_events(region_id: str) -> list[Event]:
         return [
             Event(
                 region_id=region_id,
                 name="Event One",
                 datetime=datetime.now(),
-                member_created_id=user_id,
                 discipline="Discipline A",
                 description="Description for Event One",
+                documents_ids=[],
+                protocols_ids=[],
                 is_approved_event=False
             ),
             Event(
                 region_id=region_id,
                 name="Event Two",
                 datetime=datetime.now(),
-                member_created_id=user_id,
                 discipline="Discipline B",
                 description="Description for Event Two",
+                documents_ids=[],
+                protocols_ids=[],
                 is_approved_event=True
             ),
             Event(
                 region_id=region_id,
                 name="Event Three",
                 datetime=datetime.now(),
-                member_created_id=user_id,
                 discipline="Discipline C",
                 description="Description for Event Three",
+                documents_ids=[],
+                protocols_ids=[],
                 is_approved_event=False
             )
         ]

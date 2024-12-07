@@ -6,6 +6,7 @@ from fastapi.params import Depends, Body
 from app.api.dto import Page, SearchReq
 from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
 from app.data.domains.event import Event
+from app.services.auth_service import AuthService
 from app.services.event_service import EventService
 
 router = APIRouter()
@@ -30,20 +31,26 @@ async def get_by_id(
 ) -> Optional[Event]:
     return await event_service.get(event_id)
 
-
 @router.post("", name="events:create")
 async def create_event(
-        # user_id: Annotated[str, Depends(AuthService.require_user_id)],
+        user_id: Annotated[str, Depends(AuthService.require_user_id)],
         create_event_dto: Annotated[CreateEventReq, Body(...)],
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
-    user_id = "6752f91f8325392bd4c2ad81"
     return await event_service.create_event(user_id, create_event_dto)
 
-
-@router.post("/search", name="events:update")
+@router.post("/search", name="events:search")
 async def search(
         page: SearchReq,
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> Page[ExtendedEvent]:
     return await event_service.search(page)
+
+# todo: only for member
+@router.put("/{event_id}", name="events:update")
+async def update(
+        event_id: str,
+        updated_event: Annotated[CreateEventReq, Body(...)],
+        event_service: Annotated[EventService, Depends(EventService)]
+) -> bool:
+    return await event_service.update(event_id, updated_event)

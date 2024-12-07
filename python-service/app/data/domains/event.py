@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -13,6 +13,8 @@ class Event(BaseModel):
     member_created_id: Optional[str] = None
     discipline: Optional[str] = None
     description: Optional[str] = None
+    documents_ids: List[str] = []
+    protocols_ids: List[str] = []
     is_approved_event: bool
 
 
