@@ -36,3 +36,7 @@ class BaseService(Generic[T]):
     async def filter(self, filters: dict) -> List[T]:
         """Filter items based on the given filters."""
         return await self.repository.filter(filters)
+
+    async def find_one(self, filters: dict) -> Optional[T]:
+        """Find one by filters"""
+        return await self.repository.find_one(filters)

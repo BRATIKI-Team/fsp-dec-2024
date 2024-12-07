@@ -2,7 +2,7 @@ from typing import Annotated, List
 
 from fastapi import Depends
 
-from app.api.dto.event_request_dto import SendRequestResult
+from app.api.dto.event_request_dto import SendEventRequestResult
 from app.data.domains.event import Event
 from app.data.domains.event_request import EventRequest, EventRequestStatus
 from app.data.repositories.event_request_repository import EventRequestRepository
@@ -47,7 +47,7 @@ class EventRequestService(BaseService[EventRequest]):
 
         return await super().update(request_id, event_request)
 
-    async def send_event_request(self, event_id: str) -> SendRequestResult:
+    async def send_event_request(self, event_id: str) -> SendEventRequestResult:
         event = await self._event_service.get(event_id)
         if event is None:
             raise Exception("Event is not found")
@@ -59,13 +59,13 @@ class EventRequestService(BaseService[EventRequest]):
 
         existing_reqeust = await super().filter({"event_id": event_id})
         if len(existing_reqeust):
-            return SendRequestResult(error="request-already-exists")
+            return SendEventRequestResult(error="request-already-exists")
 
         event_request_id = await super().create(event_request)
         if event_request_id is None:
-            return SendRequestResult(error="something-went-wrong")
+            return SendEventRequestResult(error="something-went-wrong")
 
-        return SendRequestResult()
+        return SendEventRequestResult()
 
     async def get_by_region_id(self, region_id: str) -> List[EventRequest]:
         filters = {"region_id": region_id}

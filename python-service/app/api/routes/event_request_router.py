@@ -2,7 +2,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, Body
 
-from app.api.dto.event_request_dto import SendRequestResult
+from app.api.dto.event_request_dto import SendEventRequestResult
 from app.data.domains.event_request import EventRequest
 from app.services.auth_service import AuthService
 from app.services.event_request_service import EventRequestService
@@ -44,7 +44,7 @@ async def get_by_event_id(
 async def send_request(
         event_id: str,
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
-) -> SendRequestResult:
+) -> SendEventRequestResult:
     return await event_request_service.send_event_request(event_id)
 
 # todo: save endpoint for only SUPER_ADMIN

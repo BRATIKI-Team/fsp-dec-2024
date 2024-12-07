@@ -58,6 +58,12 @@ class BaseRepository:
         documents = await self.collection.find(filters).to_list()
         return [self._document_to_model(doc) for doc in documents]
 
+    async def find_one(self, filters: Dict[str, Any]) -> T:
+        document = await self.collection.find_one(filters)
+        if document:
+            return self._document_to_model(dict(document))
+        return document
+
     async def paginate(self, cursor: AsyncIOMotorCursor, req: PageReq) -> Page[T]:
         documents = await cursor.skip((req.page - 1) * req.page_size).to_list(req.page_size + 1)
 

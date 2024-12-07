@@ -1,7 +1,8 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
 
+from app.api.dto.region_dto import RegionDto
 from app.data.domains.region import Region
 from app.services.auth_service import AuthService
 from app.services.region_service import RegionService
@@ -42,3 +43,11 @@ async def get_by_id(
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> Optional[Region]:
     return await region_service.get(region_id)
+
+@router.put("/{region_id}", name="regions:update")
+async def update(
+        region_id: str,
+        region_model: Annotated[Region, Body(...)],
+        region_service: Annotated[RegionService, Depends(RegionService)]
+) -> bool:
+    return await region_service.update(region_id, region_model)
