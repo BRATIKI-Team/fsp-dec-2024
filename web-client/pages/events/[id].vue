@@ -3,7 +3,6 @@ import { definePageMeta } from '#imports';
 import { useAsyncData, useRoute, useRouter } from '#app';
 import useLoading from '~/composables/useLoading';
 import type { IEventDetail } from '~/types/dtos/event';
-import { EventRequestStatus } from '~/types/dtos/request';
 
 definePageMeta({
   auth: true,
@@ -15,32 +14,10 @@ const route = useRoute();
 const loading = useLoading();
 const api = useApi();
 
-const { data, refresh } = await useAsyncData<IEventDetail>(
-  'event_detail',
-  async () => {
-    loading.on_load_start();
-    return await api.events.find(route.params.id.toString()).then(
-      response => {
-        loading.on_load_end();
-        return response;
-      },
-      error => {
-        loading.on_error();
-        return error;
-      }
-    );
-  }
-);
-
-const event_request_create = (id: string) => {
-  if (loading.in_progress.value) {
-    return;
-  }
-
+const { data } = await useAsyncData<IEventDetail>('event_detail', async () => {
   loading.on_load_start();
-  api.requests.create(id).then(
+  return await api.events.find(route.params.id.toString()).then(
     response => {
-      refresh();
       loading.on_load_end();
       return response;
     },
@@ -49,27 +26,18 @@ const event_request_create = (id: string) => {
       return error;
     }
   );
-};
+});
 
 const go_back = () => router.back();
 
-const button_tooltip = (item: IEventDetail): string | undefined => {
-  if (item.request === null) return 'Ваша заявка будет рассмотрена ЦП ФСП.';
-
-  if (item.request.status === EventRequestStatus.PENDING)
-    return 'Ваша заявка на рассмотрении в ЦП ФСП.';
-  if (item.request.status === EventRequestStatus.DECLINED)
-    return 'Ваша заявка была отклонена.';
-
-  return undefined;
-};
+const download_file = (file_id: string) => api.files.download(file_id);
 </script>
 
 <template>
   <div
     class="mt-8 flex flex-col lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
     <UCard v-if="data">
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-8">
         <div class="flex items-center gap-4">
           <UButton
             v-on:click="go_back()"
@@ -79,28 +47,33 @@ const button_tooltip = (item: IEventDetail): string | undefined => {
           <div class="text-4xl font-semibold">{{ data.event.name }}</div>
         </div>
 
-        <div class="flex items-center gap-4">
-          <UIcon class="h-8 w-8" name="i-heroicons-calendar-days" />
-          <div class="text-2xl">
-            {{
-              data.event.start_date.toLocaleDateString() +
-              ' - ' +
-              data.event.end_date.toLocaleDateString()
-            }}
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center gap-4">
+            <UIcon class="h-8 w-8" name="i-heroicons-calendar-days" />
+            <div class="text-xl">
+              Дата проведения:
+              {{
+                data.event.start_date.toLocaleDateString() +
+                ' - ' +
+                data.event.end_date.toLocaleDateString()
+              }}
+            </div>
           </div>
-        </div>
 
-        <div class="flex items-center gap-4" v-if="data.region">
-          <UIcon class="h-8 w-8" name="i-heroicons-home-modern" />
-          <NuxtLink
-            class="text-2xl underline"
-            :href="'/regions/' + data.region.id">
-            {{ data.region.name }}
-          </NuxtLink>
+          <div class="flex items-center gap-4" v-if="data.region">
+            <UIcon class="h-8 w-8" name="i-heroicons-home-modern" />
+            <span class="text-xl"
+              >Представительство:
+              <NuxtLink class="underline" :href="'/regions/' + data.region.id">
+                {{ data.region.name }}
+              </NuxtLink></span
+            >
+          </div>
         </div>
 
         <UAccordion
           v-if="data.event.description"
+          size="xl"
           variant="outline"
           :items="[{ label: 'Описание' }]">
           <template #item>
@@ -109,27 +82,64 @@ const button_tooltip = (item: IEventDetail): string | undefined => {
         </UAccordion>
         <UAccordion
           v-if="data.protocols.length !== 0"
+          size="xl"
           variant="outline"
-          :items="[{ label: 'Положение' }]">
-          <template #item></template>
+          :items="[{ label: 'Протоколы' }]">
+          <template #item>
+            <div class="flex flex-col">
+              <UBadge
+                class="cursor-pointer hover:scale-[101%]"
+                v-for="file in data.results"
+                size="lg"
+                @click="download_file(file.id)">
+                <div class="flex w-full justify-between">
+                  <div>{{ file.file_name }}</div>
+                  <div>{{ file.upload_at.split('T')[0] }}</div>
+                </div>
+              </UBadge>
+            </div>
+          </template>
         </UAccordion>
-
-        <div class="mt-8 flex w-full">
-          <div class="lg:w-full"></div>
-
-          <UTooltip class="w-full lg:w-fit" :text="button_tooltip(data)">
-            <UButton
-              class="text-nowrap"
-              v-if="data.request?.status !== EventRequestStatus.APPROVED"
-              :loading="loading.in_progress.value"
-              loading-icon="i-heroicons-arrow-path"
-              @click="event_request_create(data.event.id)"
-              :disabled="data.request !== null"
-              block
-              variant="solid"
-              label="Подать заявку на внесение в ЕКП" />
-          </UTooltip>
-        </div>
+        <UAccordion
+          v-if="data.documents.length !== 0"
+          size="xl"
+          variant="outline"
+          :items="[{ label: 'Документы' }]">
+          <template #item>
+            <div class="flex flex-col">
+              <UBadge
+                class="cursor-pointer hover:scale-[101%]"
+                v-for="file in data.results"
+                size="lg"
+                @click="download_file(file.id)">
+                <div class="flex w-full justify-between">
+                  <div>{{ file.file_name }}</div>
+                  <div>{{ file.upload_at.split('T')[0] }}</div>
+                </div>
+              </UBadge>
+            </div>
+          </template>
+        </UAccordion>
+        <UAccordion
+          v-if="data.results.length !== 0"
+          size="xl"
+          variant="outline"
+          :items="[{ label: 'Результаты' }]">
+          <template #item>
+            <div class="flex flex-col">
+              <UBadge
+                class="cursor-pointer hover:scale-[101%]"
+                v-for="file in data.results"
+                size="lg"
+                @click="download_file(file.id)">
+                <div class="flex w-full justify-between">
+                  <div>{{ file.file_name }}</div>
+                  <div>{{ file.upload_at.split('T')[0] }}</div>
+                </div>
+              </UBadge>
+            </div>
+          </template>
+        </UAccordion>
       </div>
     </UCard>
   </div>

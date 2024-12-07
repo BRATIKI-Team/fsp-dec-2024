@@ -90,6 +90,12 @@ export default () => {
       headers: helpers_api.AUTH_HEADERS(),
     });
 
+  const download_file = (id: string) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/files/${id}/download`), {
+      method: 'GET',
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
   return {
     events: {
       search: events_search,
@@ -123,6 +129,9 @@ export default () => {
     auth: {
       reset: password_reset,
       forget: password_forget,
+    },
+    files: {
+      download: download_file,
     },
   };
 };

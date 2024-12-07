@@ -1,3 +1,4 @@
+import type { FileResponse } from '~/types/dtos/file';
 import type { IRegion } from '~/types/dtos/region';
 import type { IRequest } from '~/types/dtos/request';
 import type { IUser } from '~/types/dtos/user';
@@ -22,7 +23,9 @@ export interface IEventDetail {
   readonly event: IEvent;
   readonly region?: IRegion;
   readonly user?: IUser;
-  readonly protocols: readonly string[];
+  readonly protocols: readonly FileResponse[];
+  readonly documents: readonly FileResponse[];
+  readonly results: readonly FileResponse[];
   readonly request: IRequest | null;
 }
 
