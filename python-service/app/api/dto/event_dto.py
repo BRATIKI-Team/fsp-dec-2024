@@ -13,7 +13,8 @@ class CreateEventReq(BaseModel):
     name: str
     discipline: str
     description: str
-    datetime: datetime
+    start_date: datetime
+    end_date: datetime
     documents_ids: List[str]
     protocols_ids: List[str]
 
