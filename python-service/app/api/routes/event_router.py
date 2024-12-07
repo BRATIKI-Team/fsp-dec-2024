@@ -1,6 +1,6 @@
 from typing import Annotated, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, UploadFile, File
 from fastapi.params import Depends, Body
 
 from app.api.dto import Page, SearchReq
@@ -73,3 +73,12 @@ async def update(
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
     return await event_service.update(event_id, updated_event)
+
+@router.post("{event_id}/upload-result", name="events:upload-result")
+async def upload_result(
+        event_id: str,
+        file: Annotated[UploadFile, File(...)],
+        #require_member: Annotated[bool, Depends(AuthService.require_member)],
+        event_service: Annotated[EventService, Depends(EventService)]
+) -> str:
+    return await event_service.upload_result(event_id, file)
