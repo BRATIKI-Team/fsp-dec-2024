@@ -176,6 +176,12 @@ export default () => {
           method: 'POST',
           headers: helpers_api.AUTH_HEADERS(),
         }),
+      create: async (data: any) =>
+        $fetch<{id: string}>(helpers_api.REQUEST_URL("/regions/create"), {
+          method: 'POST',
+          body: data,
+          headers: helpers_api.AUTH_HEADERS(),
+        }),
       search: region_search,
     },
     member_reqs: {
