@@ -23,7 +23,7 @@ class StatisticsService:
         region_stat = await self._statistics_repository.find_one({"region_id": event.region_id})
         region_stat_id = None if not region_stat else region_stat.id
         if not region_stat:
-            region_stat = Statistics.get_default(event.region_id)
+            region_stat = Statistics.get_default(event.region_id, event.start_date.year)
             region_stat_id = await self._statistics_repository.insert(region_stat)
         region_stat.events_count += 1
         await self._statistics_repository.update(region_stat_id, region_stat)
@@ -32,7 +32,7 @@ class StatisticsService:
             team_region_stat = await self._statistics_repository.find_one({"region_id": team_result.region_id})
             team_region_stat_id = None if not team_region_stat else team_region_stat.id
             if not team_region_stat:
-                team_region_stat = Statistics.get_default(team_result.region_id)
+                team_region_stat = Statistics.get_default(team_result.region_id, year=event.start_date.year)
                 team_region_stat_id = await self._statistics_repository.insert(team_region_stat)
 
             team_region_stat.participants_count += 1

@@ -44,7 +44,7 @@ class EventSeeder(BaseService[Event]):
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
                 event.teams_results = teams_results
-                event.result_file_id = await self.generate_results_file(event.id, teams_results)
+                event.result_file_id = await self.generate_results_file(event.name, teams_results)
                 print(f"--count: {count} | {event.name}")
                 count += 1
                 await self.create(event)

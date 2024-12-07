@@ -45,8 +45,9 @@ async def download(
         file_data,
         media_type=file.file_type,
         headers={
-            "Content-Disposition": f"inline; filename*=UTF-8''{transliterate(file.file_name)}",
-            "Content-Type": "application/octet-stream"
+            "Content-Disposition": f"attachment; filename*=UTF-8''{transliterate(file.file_name)}",
+            "Content-Type": "application/octet-stream",
+            "Content-Length": str(len(file.file_data))
         }
     )
 

@@ -14,12 +14,13 @@ class Statistics(BaseModel):
     year: int
 
     @staticmethod
-    def get_default(region_id: str):
+    def get_default(region_id: str, year: int):
         return Statistics(
             region_id=region_id,
             participants_count=0,
             events_count=0,
             first_place_count=0,
             second_place_count=0,
-            third_place_count=0
+            third_place_count=0,
+            year=year
         )
