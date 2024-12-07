@@ -4,7 +4,6 @@ from typing import Annotated
 from bson import Binary
 from fastapi import Depends, UploadFile
 
-from app.core.dependencies import transliterate
 from app.data.domains.file_model import FileModel
 from app.data.repositories.file_model_repository import FileRepository
 from app.services.base_service import BaseService
