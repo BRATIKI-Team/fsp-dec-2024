@@ -28,7 +28,7 @@ class RegionService(BaseService[Region]):
     #     return True
 
     async def seed(self) -> bool:
-        regions = self.__load_regions_from_file('app/docs/regions.json')
+        regions = self.__load_regions_from_file('app/generator/docs/regions.json')
         for region in regions:
             print(f"Creating region: {region})")
             await self.create(region)

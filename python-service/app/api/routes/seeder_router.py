@@ -23,9 +23,8 @@ async def regions(
     return await region_service.seed()
 
 
-@router.post("/{region_id}/seed-events", name="seeders:events")
-async def regions(
-        region_id: str,
+@router.post("/seed-events", name="seeders:events")
+async def events(
         events_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
-    return await events_service.seed(region_id)
+    return await events_service.seed()

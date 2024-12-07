@@ -10,7 +10,6 @@ class TeamPlace(str, Enum):
     THIRD = "third"
 
 class TeamResult(BaseModel):
-    id: Optional[str] = None
     name: str
     region_id: str
     place: Optional[TeamPlace] = None

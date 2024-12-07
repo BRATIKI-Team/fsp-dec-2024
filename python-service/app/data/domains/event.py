@@ -18,9 +18,9 @@ class Event(BaseModel):
     member_created_id: Optional[str] = None
     discipline: Optional[str] = None
     description: Optional[str] = None
-    documents_ids: List[str]
-    protocols_ids: List[str]
-    teams_results: List[TeamResult]
+    documents_ids: Optional[List[str]] = None
+    protocols_ids: Optional[List[str]] = None
+    teams_results: Optional[List[TeamResult]] = None
     is_approved_event: bool
 
 
