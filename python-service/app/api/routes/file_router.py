@@ -48,3 +48,10 @@ async def download(
             "Content-Type": "application/octet-stream"
         }
     )
+
+@router.delete("/{file_id", name="files:delete-by-id")
+async def delete(
+        file_id: str,
+        file_service: Annotated[FileModelService, Depends(FileModelService)]
+) -> bool:
+    return await file_service.delete(file_id)
