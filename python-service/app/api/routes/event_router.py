@@ -6,6 +6,7 @@ from fastapi.params import Depends, Body
 from app.api.dto import Page, SearchReq
 from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
 from app.data.domains.event import Event
+from app.data.mappers.event_mapper import EventMapper
 from app.services.auth_service import AuthService
 from app.services.event_service import EventService
 
@@ -18,18 +19,24 @@ async def list_all(
 ) -> List[Event]:
     return await event_service.get_all()
 
+
 @router.get("/disciplines", name="events:disciplines")
 async def list_all(
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> List[str]:
     return await event_service.disciplines()
 
+
 @router.get("/{event_id}", name="events:get-by-id")
 async def get_by_id(
         event_id: str,
-        event_service: Annotated[EventService, Depends(EventService)]
-) -> Optional[Event]:
-    return await event_service.get(event_id)
+        event_service: Annotated[EventService, Depends(EventService)],
+        event_mapper: Annotated[EventMapper, Depends(EventMapper)],
+) -> Optional[ExtendedEvent]:
+    return await event_mapper.map_event_to_extend(
+        await event_service.get(event_id)
+    )
+
 
 @router.post("", name="events:create")
 async def create_event(
@@ -39,12 +46,26 @@ async def create_event(
 ) -> Event:
     return await event_service.create_event(user_id, create_event_dto)
 
+
 @router.post("/search", name="events:search")
 async def search(
         page: SearchReq,
-        event_service: Annotated[EventService, Depends(EventService)]
+        event_service: Annotated[EventService, Depends(EventService)],
+        event_mapper: Annotated[EventMapper, Depends(EventMapper)],
 ) -> Page[ExtendedEvent]:
-    return await event_service.search(page)
+    page = await event_service.search(page)
+    extended_events = []
+    for event in page.items:
+        extended_events.append(await event_mapper.map_event_to_extend(event))
+
+    return Page(
+        total=page.total,
+        page=page.page,
+        page_size=page.page_size,
+        items=extended_events,
+        more=page.more
+    )
+
 
 # todo: only for member
 @router.put("/{event_id}", name="events:update")

@@ -1,4 +1,5 @@
 import type { IRegion } from '~/types/dtos/region';
+import type { IRequest } from '~/types/dtos/request';
 import type { IUser } from '~/types/dtos/user';
 
 export interface IEvent {
@@ -21,16 +22,18 @@ export interface IEventDetail {
   readonly event: IEvent;
   readonly region?: IRegion;
   readonly user?: IUser;
+  readonly protocols: readonly string[];
+  readonly request: IRequest | null;
 }
 
 export interface IEventCreateRequest {
-  name: string,
-  discipline: string,
-  description: string,
-  start_date: string,
-  end_date: string,
+  name: string;
+  discipline: string;
+  description: string;
+  start_date: string;
+  end_date: string;
   participants_count: number;
   location: string;
-  documents_ids: string[],
-  protocols_ids: string[]
+  documents_ids: string[];
+  protocols_ids: string[];
 }

@@ -4,9 +4,8 @@ from typing import Annotated, List
 from fastapi import Depends
 
 from app.api.dto import SearchReq, Page
-from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
+from app.api.dto.event_dto import CreateEventReq
 from app.data.domains.event import Event
-from app.data.domains.file_model import FileModel
 from app.data.repositories.event_repository import EventRepository
 from app.services.base_service import BaseService
 from app.services.file_model_service import FileModelService
@@ -31,7 +30,7 @@ class EventService(BaseService[Event]):
     async def create_event(self, user_id: str, create_event_dto: CreateEventReq) -> Event:
         user = await self._user_service.get(user_id)
         if user.region_id is None:
-             raise Exception("Has no permission")
+            raise Exception("Has no permission")
 
         event = Event(
             region_id=user.region_id,
@@ -62,25 +61,8 @@ class EventService(BaseService[Event]):
 
         return list(disciplines)
 
-    async def search(self, req: 'SearchReq') -> Page[ExtendedEvent]:
-        page = await self._event_repository.search(req=req)
-        extended_events = []
-        for event in page.items:
-            user = await self._user_service.get(event.member_created_id)
-            region = await self._region_service.get(event.region_id)
-
-            documents = [doc.get_dto() for doc in await self._file_service.get_many(event.documents_ids)]
-            protocols = [doc.get_dto() for doc in await self._file_service.get_many(event.protocols_ids)]
-
-            extended_events.append(ExtendedEvent(event=event, user=user, region=region, documents=documents, protocols=protocols))
-
-        return Page(
-            total=page.total,
-            page=page.page,
-            page_size=page.page_size,
-            items=extended_events,
-            more=page.more
-        )
+    async def search(self, req: SearchReq) -> Page[Event]:
+        return await self._event_repository.search(req=req)
 
     async def seed(self, region_id: str) -> bool:
         events = self.__stub_events(region_id)

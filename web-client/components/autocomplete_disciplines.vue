@@ -13,5 +13,6 @@ api.disciplines.all().then(response => (options.value = response));
   <UInputMenu
     v-model="model"
     placeholder="Выберите дисциплину"
+    size="xl"
     :options="[...options]" />
 </template>

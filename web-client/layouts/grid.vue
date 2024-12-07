@@ -23,7 +23,7 @@
     class="bg-background mt-8 border-t border-gray-200 p-8 dark:border-gray-800">
     <div
       class="flex justify-between lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
-      <NuxtImg class="h-24" src="footer_logo.png" />
+      <NuxtImg class="hidden h-24 dark:block" src="footer_logo.png" />
       <div class="flex flex-col">
         <div class="text-sm text-gray-800 dark:text-gray-400">Контакты</div>
         <div>info@fsp-russia.com</div>
