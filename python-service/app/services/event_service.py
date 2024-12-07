@@ -126,7 +126,7 @@ class EventService(BaseService[Event]):
                 start_date=start_date,
                 end_date=end_date,
                 discipline=random.choice(
-                    ['Discipline A', 'Discipline B', 'Discipline C', 'Discipline D', 'Discipline E']),
+                    ['Информационная Безопасность', 'Продуктовое Программирование', 'Алгоритмическое Программирование']),
                 description="Auto-generated event",
                 is_approved_event=random.choice([True, False])
             )
