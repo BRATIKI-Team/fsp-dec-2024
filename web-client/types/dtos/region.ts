@@ -8,6 +8,6 @@ export interface IRegion {
 
 export interface IContacts {
   readonly email: string;
-  readonly phone: string;
-  readonly social_links: readonly string[];
+  readonly phone?: string;
+  readonly social_links?: readonly string[];
 }

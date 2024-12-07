@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports';
-import { useAsyncData, useRoute } from '#app';
+import { useAsyncData, useRoute, useRouter } from '#app';
 import useLoading from '~/composables/useLoading';
 import type { IEventDetail } from '~/types/dtos/event';
 
@@ -9,6 +9,7 @@ definePageMeta({
   layout: 'grid',
 });
 
+const router = useRouter();
 const route = useRoute();
 const loading = useLoading();
 const api = useApi();
@@ -27,7 +28,8 @@ const { data } = await useAsyncData<IEventDetail>('event_detail', async () => {
   );
 });
 
-const go_back = () => navigateTo('/events');
+const go_back = () => router.back();
+const go_region = (id: string) => navigateTo(`/regions/${id}`);
 </script>
 
 <template>
@@ -47,13 +49,19 @@ const go_back = () => navigateTo('/events');
         <div class="flex items-center gap-4">
           <UIcon class="h-8 w-8" name="i-heroicons-calendar-days" />
           <div class="text-2xl">
-            {{ data.event.datetime.toLocaleDateString() }}
+            {{
+              data.event.start_date.toLocaleDateString() +
+              ' - ' +
+              data.event.end_date.toLocaleDateString()
+            }}
           </div>
         </div>
 
         <div class="flex items-center gap-4" v-if="data.region">
           <UIcon class="h-8 w-8" name="i-heroicons-home-modern" />
-          <div class="text-2xl">
+          <div
+            class="cursor-pointer text-2xl underline"
+            @click="go_region(data.region.id)">
             {{ data.region.name }}
           </div>
         </div>

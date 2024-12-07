@@ -25,13 +25,13 @@ export interface IEventDetail {
 }
 
 export interface IEventCreateRequest {
-  name: string,
-  discipline: string,
-  description: string,
-  start_date: string,
-  end_date: string,
+  name: string;
+  discipline: string;
+  description: string;
+  start_date: string;
+  end_date: string;
   participants_count: number;
   location: string;
-  documents_ids: string[],
-  protocols_ids: string[]
+  documents_ids: string[];
+  protocols_ids: string[];
 }

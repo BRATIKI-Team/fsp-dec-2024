@@ -127,7 +127,11 @@ watch(
       v-on:click="on_item_click(item)"
       :title="item.event.name"
       :description="item.event.description"
-      :price="item.event.datetime.toLocaleDateString()"
+      :price="
+        item.event.start_date.toLocaleDateString() +
+        ' ' +
+        item.event.end_date.toLocaleDateString()
+      "
       :features="event_features(item)"
       orientation="horizontal" />
 

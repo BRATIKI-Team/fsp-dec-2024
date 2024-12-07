@@ -65,14 +65,7 @@ class EventService(BaseService[Event]):
         page = await self._event_repository.search(req=req)
         extended_events = []
         for event in page.items:
-            user = await self._user_service.get(event.member_created_id)
-            region = await self._region_service.get(event.region_id)
-
-            documents = [doc.get_dto() for doc in await self._file_service.get_many(event.documents_ids)]
-            protocols = [doc.get_dto() for doc in await self._file_service.get_many(event.protocols_ids)]
-
-            extended_events.append(
-                ExtendedEvent(event=event, user=user, region=region, documents=documents, protocols=protocols))
+            extended_events.append(self.__map_to_extended_event(event))
 
         return Page(
             total=page.total,
@@ -139,6 +132,9 @@ class EventService(BaseService[Event]):
     async def get(self, item_id: str) -> Optional[ExtendedEvent]:
         """Get an item by its ID."""
         event = await self.repository.get(item_id)
+        return await self.__map_to_extended_event(event)
+
+    async def __map_to_extended_event(self, event: Event) -> ExtendedEvent:
         user = await self._user_service.get(event.member_created_id)
         region = await self._region_service.get(event.region_id)
 

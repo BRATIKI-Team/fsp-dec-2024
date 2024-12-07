@@ -42,7 +42,7 @@ export default () => {
     });
 
   const region_by_id = (id: string) =>
-    $fetch<IRegion>(`/regions/${id}`, {
+    $fetch<IRegion>(helpers_api.REQUEST_URL(`/regions/${id}`), {
       method: 'GET',
       headers: helpers_api.AUTH_HEADERS(),
     });
@@ -72,7 +72,7 @@ export default () => {
     },
     regions: {
       all: regions_all,
-      get: region_by_id,
+      find: region_by_id,
     },
     disciplines: {
       all: disciplines_all,
