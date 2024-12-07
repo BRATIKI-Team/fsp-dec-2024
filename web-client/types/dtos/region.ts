@@ -2,6 +2,7 @@ export interface IRegion {
   readonly id: string;
   readonly name: string;
   readonly description: string;
+  readonly subject: string;
   readonly is_main: boolean;
   readonly contacts: IContacts;
 }

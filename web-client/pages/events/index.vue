@@ -20,9 +20,10 @@ definePageMeta({
 
 const api = useApi();
 const loading = useLoading();
+const route = useRoute();
 
 const disciplines_filter = ref<string | undefined>();
-const regions_filter = ref<string | undefined>();
+const regions_filter = ref<string | undefined>(route.query.region?.toString());
 
 const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
