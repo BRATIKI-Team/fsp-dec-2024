@@ -7,7 +7,7 @@
     <template #right>
       <UColorModeButton />
       <UButton
-        icon="i-heroicons-arrow-right-start-on-rectangle"
+        icon="i-heroicons-arrow-right-end-on-rectangle"
         color="gray"
         variant="ghost"
         @click="navigateTo('/auth/sign_in')" />
