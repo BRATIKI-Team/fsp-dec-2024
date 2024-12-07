@@ -74,7 +74,7 @@ class RegionService(BaseService[Region]):
             contacts = Contacts(email=item["email"])
             region = Region(
                 name=item["region"],
-                description=item["subject"],
+                subject=item["subject"],
                 person=item.get("person"),
                 contacts=contacts,
                 is_main=False

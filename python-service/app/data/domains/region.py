@@ -8,7 +8,8 @@ from app.data.domains.contacts import Contacts
 class Region(BaseModel):
     id: Optional[str] = None
     name: str
-    description: str
+    subject: str
+    description: Optional[str] = None
     person: Optional[str]
     is_main: bool
     contacts: Optional[Contacts]
