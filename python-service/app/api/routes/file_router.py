@@ -1,7 +1,8 @@
+from io import BytesIO
 from typing import Annotated, List
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import StreamingResponse, Response
 
 from app.core.dependencies import transliterate
 from app.data.domains.file_model import FileModel
@@ -34,11 +35,16 @@ async def download(
         raise HTTPException(status_code=404, detail="File not found")
 
     print(file.file_name, file.file_type)
+    file = await file_service.get(file_id)
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
 
-    return Response(
-        content=file.file_data,
+    file_data = BytesIO(file.file_data)
+    return StreamingResponse(
+        file_data,
         media_type=file.file_type,
-        headers = {
-            "Content-Disposition": f"inline; filename*=UTF-8''{transliterate(file.file_name)}"
+        headers={
+            "Content-Disposition": f"inline; filename*=UTF-8''{transliterate(file.file_name)}",
+            "Content-Type": "application/octet-stream"
         }
     )
