@@ -2,7 +2,8 @@ from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, Body
 
-from app.api.dto.region_dto import RegionDto
+from app.api.dto import SearchReq, Page
+from app.api.dto.region_dto import RegionCreateReq
 from app.data.domains.region import Region
 from app.services.auth_service import AuthService
 from app.services.region_service import RegionService
@@ -44,6 +45,7 @@ async def get_by_id(
 ) -> Optional[Region]:
     return await region_service.get(region_id)
 
+
 @router.put("/{region_id}", name="regions:update")
 async def update(
         region_id: str,
@@ -51,3 +53,26 @@ async def update(
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
     return await region_service.update(region_id, region_model)
+
+
+@router.post("/search", name="regions:search")
+async def search(
+        page: SearchReq,
+        region_service: Annotated[RegionService, Depends(RegionService)],
+) -> Page[Region]:
+    return await region_service.search(page)
+
+
+@router.post("/create", name="regions:create")
+async def create(
+        require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
+        req: RegionCreateReq,
+        region_service: Annotated[RegionService, Depends(RegionService)],
+) -> str:
+    model = Region(
+        name=req.name,
+        subject=req.subject,
+        is_main=req.is_main,
+    )
+
+    return await region_service.create(model)

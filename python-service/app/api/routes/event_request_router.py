@@ -15,12 +15,11 @@ router = APIRouter()
 
 @router.get("/list-all", name="event-requests:list-all")
 async def list_all(
-        require_superadmin: Annotated[bool, Depends(AuthService.require_super_admin)],
+        require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
         event_request_service: Annotated[EventRequestService, Depends(EventRequestService)],
         req_mapper: Annotated[EventRequestMapper, Depends(EventRequestMapper)],
 ) -> List[EventRequestDto]:
-    # TODO: сделай фильтрацию по status, пусть сюда идут только те request у который status = pennding
-    reqs = await event_request_service.get_all()
+    reqs = await event_request_service.get_pending()
     extended_reqs = []
     for req in reqs:
         extended_reqs.append(await req_mapper.map_req_to_extend(req))

@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
+from app.generator.statistics_seeder import StatisticsSeeder
 from app.services.event_service import EventService
 from app.services.region_service import RegionService
 from app.services.user_service import UserService
@@ -28,3 +29,9 @@ async def events(
         events_service: Annotated[EventService, Depends(EventService)]
 ) -> bool:
     return await events_service.seed()
+
+@router.post("/seed-statistics", name="seeders:statistics")
+async def statistics(
+        statistics_seeder: Annotated[StatisticsSeeder, Depends(StatisticsSeeder)]
+) -> bool:
+    return await statistics_seeder.seed()

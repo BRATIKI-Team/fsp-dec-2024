@@ -5,8 +5,8 @@ import type {
   IEventCreateRequest,
   IEventDetail,
 } from '~/types/dtos/event';
-import type { IMemberRequest } from '~/types/dtos/member_request';
 import type { IEventRequest } from '~/types/dtos/event_request';
+import type { IMemberRequest } from '~/types/dtos/member_request';
 import type { IRegion } from '~/types/dtos/region';
 import type {
   ForgetPasswordRequest,
@@ -100,17 +100,30 @@ export default () => {
     });
 
   const member_reqs_change_status = (req: string, status: string) =>
-    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${req}/set-status/${status}`), {
-      method: 'POST',
+    $fetch<readonly IMemberRequest[]>(
+      helpers_api.REQUEST_URL(`/member-reqs/${req}/set-status/${status}`),
+      {
+        method: 'POST',
+        headers: helpers_api.AUTH_HEADERS(),
+      }
+    );
+
+  const region_update = async (id: string, body: IRegion) =>
+    $fetch<IRegion>(helpers_api.REQUEST_URL(`/regions/${id}`), {
+      method: 'PUT',
+      body: body,
       headers: helpers_api.AUTH_HEADERS(),
     });
 
-  const region_update = async (id: string, body: IRegion) =>
-      $fetch<IRegion>(helpers_api.REQUEST_URL(`/regions/${id}`), {
-        method: 'PUT',
-        body: body,
+  const region_search = (request: ISearchRequest) =>
+    $fetch<ISearchResponse<IRegion>>(
+      helpers_api.REQUEST_URL('/regions/search'),
+      {
+        method: 'POST',
+        body: request,
         headers: helpers_api.AUTH_HEADERS(),
-      })
+      }
+    );
 
   return {
     events: {
@@ -130,23 +143,29 @@ export default () => {
       find: event_by_id,
       requests: {
         all: async () =>
-          $fetch<Array<IEventRequest>>(helpers_api.REQUEST_URL('/event-requests/list-all'), {
-            method: 'GET',
-            headers: helpers_api.AUTH_HEADERS(),
-          }),
-        change_status: async (req: string, body: {
-          id: string,
-          event_id: string,
-          region_id: string,
-          status: string,
-          canceled_reason: string,
-        }) =>
+          $fetch<Array<IEventRequest>>(
+            helpers_api.REQUEST_URL('/event-requests/list-all'),
+            {
+              method: 'GET',
+              headers: helpers_api.AUTH_HEADERS(),
+            }
+          ),
+        change_status: async (
+          req: string,
+          body: {
+            id: string;
+            event_id: string;
+            region_id: string;
+            status: string;
+            canceled_reason: string;
+          }
+        ) =>
           $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/set-status`), {
             method: 'POST',
             body: body,
             headers: helpers_api.AUTH_HEADERS(),
           }),
-      }
+      },
     },
     regions: {
       all: regions_all,
@@ -156,11 +175,12 @@ export default () => {
         $fetch<{id: string}>(helpers_api.REQUEST_URL(`/regions/${region}/assign-${role}/${user}`), {
           method: 'POST',
           headers: helpers_api.AUTH_HEADERS(),
-        })
+        }),
+      search: region_search,
     },
     member_reqs: {
       all: member_reqs_all,
-      change_status: member_reqs_change_status
+      change_status: member_reqs_change_status,
     },
     disciplines: {
       all: disciplines_all,

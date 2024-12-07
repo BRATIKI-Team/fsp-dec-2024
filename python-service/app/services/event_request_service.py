@@ -74,3 +74,7 @@ class EventRequestService(BaseService[EventRequest]):
         filters = {"event_id": event_id}
         result = await super().filter(filters)
         return result[0] if len(result) else None
+
+    async def get_pending(self) -> List[EventRequest]:
+        filters = {'status': {'$eq': 'pending'}}
+        return await super().filter(filters)

@@ -15,6 +15,12 @@ class RegionDto(BaseModel):
     admin: Optional["UserDto"] = None
 
 
+class RegionCreateReq(BaseModel):
+    name: str
+    subject: str
+    is_main: bool
+
+
 from app.api.dto.user_dto import UserDto
 
 RegionDto.model_rebuild()

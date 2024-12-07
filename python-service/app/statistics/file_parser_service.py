@@ -28,6 +28,7 @@ class FileParserService:
             )
 
         data = None
+        print("file type", file_model.file_type)
         match file_model.file_type:
             case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
                 data = await self.__parse_excel_file(file_model)
@@ -104,8 +105,23 @@ class FileParserService:
 
     @staticmethod
     async def __parse_excel_file(file_model: FileModel) -> pd.DataFrame:
+        # Check if the file is an Excel file
+        if file_model.file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid file type. Expected Excel file."
+            )
+
         with BytesIO(file_model.file_data) as byte_stream:
-            df = pd.read_excel(byte_stream)
+            try:
+                # Attempt to read the Excel file
+                df = pd.read_excel(byte_stream, engine="openpyxl")
+            except Exception as e:
+                # Handle errors that occur during reading
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Failed to parse Excel file: {str(e)}"
+                )
         return df
 
     @staticmethod
