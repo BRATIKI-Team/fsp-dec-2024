@@ -28,7 +28,7 @@ class EventService(BaseService[Event]):
         self._region_service = region_service
         self._file_service = file_service
 
-    async def create_event(self, user_id: str, create_event_dto: CreateEventReq) -> bool:
+    async def create_event(self, user_id: str, create_event_dto: CreateEventReq) -> Event:
         user = await self._user_service.get(user_id)
         if user.region_id is None:
              raise Exception("Has no permission")
@@ -46,7 +46,8 @@ class EventService(BaseService[Event]):
         )
 
         event_id = await super().create(event)
-        return event_id is not None
+        event.id = event_id
+        return event
 
     async def disciplines(self) -> List[str]:
         events = await self.get_all()

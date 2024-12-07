@@ -52,7 +52,7 @@ definePageMeta({
   <UForm ref="form" class="shadow-md rounded-2xl px-16 py-14" :schema="schema" :state="state"   @submit="onSubmit">
     <div class="flex items-center justify-between">
       <h2 v-if="!state.edit" class="text-4xl font-bold mb-8">{{region?.name}}</h2>
-      <div v-else class="mb-2">
+      <div v-else class="mb-2 w-full mr-2">
         <UFormGroup label="Название" name="name">
           <UInput v-model="state.name"  input-class="shadow-none text-xl" />
         </UFormGroup>

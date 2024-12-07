@@ -11,7 +11,7 @@ class RegionDto(BaseModel):
     description: str
     is_main: bool
     contacts: Contacts
-    admin: "UserDto"
+    admin: Optional["UserDto"] = None
 
 from app.api.dto.user_dto import UserDto
 RegionDto.model_rebuild()

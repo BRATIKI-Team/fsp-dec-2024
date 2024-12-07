@@ -36,7 +36,7 @@ async def create_event(
         user_id: Annotated[str, Depends(AuthService.require_user_id)],
         create_event_dto: Annotated[CreateEventReq, Body(...)],
         event_service: Annotated[EventService, Depends(EventService)]
-) -> bool:
+) -> Event:
     return await event_service.create_event(user_id, create_event_dto)
 
 @router.post("/search", name="events:search")

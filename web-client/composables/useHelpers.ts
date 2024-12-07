@@ -4,7 +4,7 @@ export default () => {
 
   const REQUEST_URL = (postfix: string) =>
     `${config_api.BACKEND_URL()}${postfix}`;
-  const AUTH_HEADERS = () => ({ Authorization: `Bearer ${auth_api.token}` });
+  const AUTH_HEADERS = () => ({ Authorization: auth_api.token.value || '' });
 
   return {
     REQUEST_URL,

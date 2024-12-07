@@ -1,6 +1,6 @@
 import useEvents from '~/composables/useEvents';
 import useHelpers from '~/composables/useHelpers';
-import type { IEventDetail } from '~/types/dtos/event';
+import type { IEvent, IEventCreateRequest, IEventDetail } from '~/types/dtos/event';
 import type { IRegion } from '~/types/dtos/region';
 import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 
@@ -38,6 +38,29 @@ export default () => {
   return {
     events: {
       search: events_search,
+      create: async (body: IEventCreateRequest) => $fetch<IEvent>(
+        helpers_api.REQUEST_URL('/events'),
+        {
+          method: 'POST',
+          body: body,
+          headers: helpers_api.AUTH_HEADERS(),
+        }
+      ),
+      update: async (id: string, body: IEventCreateRequest) => $fetch<IEvent>(
+        helpers_api.REQUEST_URL(`/events/${id}`),
+        {
+          method: 'PUT',
+          body: body,
+          headers: helpers_api.AUTH_HEADERS(),
+        }
+      ),
+      find: async (id: string) => $fetch<IEvent>(
+        helpers_api.REQUEST_URL(`/events/${id}`),
+        {
+          method: 'GET',
+          headers: helpers_api.AUTH_HEADERS(),
+        }
+      )
     },
     regions: {
       all: regions_all,
