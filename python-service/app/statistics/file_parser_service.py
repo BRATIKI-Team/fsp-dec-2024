@@ -2,40 +2,29 @@ from io import BytesIO
 from typing import Annotated, List
 
 import pandas as pd
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, UploadFile
 
-from app.data.domains.file_model import FileModel
 from app.data.domains.team_result import TeamResult, TeamPlace
-from app.services.file_model_service import FileModelService
 from app.services.region_service import RegionService
 
 
 class FileParserService:
     def __init__(
             self,
-            file_model_service: Annotated[FileModelService, Depends(FileModelService)],
             region_service: Annotated[RegionService, Depends(RegionService)],
     ):
-        self._file_model_service = file_model_service
         self._region_service = region_service
 
-    async def parse_from_results_file(self, file_id: str) -> List[TeamResult]:
-        file_model = await self._file_model_service.get(file_id)
-        if not file_model:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="File not found",
-            )
-
+    async def parse_from_results_file(self, file: UploadFile) -> List[TeamResult]:
         data = None
-        print("file type", file_model.file_type)
-        match file_model.file_type:
-            case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                data = await self.__parse_excel_file(file_model)
+        print("file type", file.content_type)
+        match file.content_type:
+            case "application/vnd.ms-excel":
+                data = await self.__parse_excel_file(file)
             case "text/csv":
-                data = await self.__parse_csv_file(file_model)
+                data = await self.__parse_csv_file(file)
 
-        if data:
+        if data is not None and not data.empty:
             return await self.__compile_data(data)
         else:
             raise HTTPException(
@@ -57,7 +46,7 @@ class FileParserService:
 
         # Save the DataFrame to an Excel file in memory
         output = BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        with pd.ExcelWriter(output) as writer:
             df.to_excel(writer, index=False, sheet_name="Results")
 
         # Move the pointer to the start of the stream
@@ -71,10 +60,12 @@ class FileParserService:
         column_mapping = {
             "Команда": "team",
             "Регион": "region",
-            "Результат": "points"
+            "Рейтинг": "points"
         }
-        data_frame = data_frame.rename(columns=column_mapping)
+        print("data_frame", data_frame)
 
+        data_frame = data_frame.rename(columns=column_mapping)
+        print("data_frame", data_frame)
         # Validate required columns
         required_columns = {"team", "region", "points"}
         if not required_columns.issubset(data_frame.columns):
@@ -104,28 +95,10 @@ class FileParserService:
         return team_results
 
     @staticmethod
-    async def __parse_excel_file(file_model: FileModel) -> pd.DataFrame:
-        # Check if the file is an Excel file
-        if file_model.file_type != "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid file type. Expected Excel file."
-            )
-
-        with BytesIO(file_model.file_data) as byte_stream:
-            try:
-                # Attempt to read the Excel file
-                df = pd.read_excel(byte_stream, engine="openpyxl")
-            except Exception as e:
-                # Handle errors that occur during reading
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Failed to parse Excel file: {str(e)}"
-                )
-        return df
+    async def __parse_excel_file(file: UploadFile) -> pd.DataFrame:
+        data = await file.read()
+        return pd.read_excel(BytesIO(data), engine="xlrd")
 
     @staticmethod
-    async def __parse_csv_file(file_model: FileModel) -> pd.DataFrame:
-        with BytesIO(file_model.file_data) as byte_stream:
-            df = pd.read_csv(byte_stream)
-        return df
+    async def __parse_csv_file(file: UploadFile) -> pd.DataFrame:
+        return pd.read_csv(BytesIO(await file.read()))
