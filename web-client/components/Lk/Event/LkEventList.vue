@@ -11,6 +11,7 @@ const columns = [
 
 const api = useApi();
 const loading = ref(false);
+const { user } = await useUser()
 
 const page = ref(1);
 const pageCount = ref(5);
@@ -22,9 +23,9 @@ const updateState = async () => {
     page_size: pageCount.value,
     criteria: [
       {
-        field: 'region_id',
+        field: 'regions',
         // @ts-ignore
-        value: [user.region.id],
+        value: [user?.region.id],
       },
     ],
   });
@@ -48,7 +49,7 @@ const events = await useState(() => ({
   total: 0
 }));
 onMounted(async () => {
-  events.value = await updateState()
+  await updateState()
 })
 watch(page, async () => {
   events.value = await updateState()

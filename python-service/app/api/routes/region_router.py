@@ -14,7 +14,7 @@ router = APIRouter()
 async def assign_member(
         region_id: str,
         user_id: str,
-        require_admin: Annotated[bool, Depends(AuthService.require_admin)],
+        require_admin: Annotated[bool, Depends(AuthService.require_admin_or_super_admin)],
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
     return await region_service.assign_member(region_id, user_id)

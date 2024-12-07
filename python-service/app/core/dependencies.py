@@ -19,7 +19,7 @@ def get_mail() -> FastMail:
         MAIL_USERNAME=MAIL_USERNAME,
         MAIL_PASSWORD=MAIL_PASSWORD,
         MAIL_FROM=MAIL_USERNAME,
-        MAIL_STARTTLS=True,
+        MAIL_STARTTLS=False,
         MAIL_SSL_TLS=False
     )
 

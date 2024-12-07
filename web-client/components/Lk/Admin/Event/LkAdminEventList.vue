@@ -74,11 +74,12 @@ const changeStatus = async (row: any, status: string) => {
         description: 'Вы успешно приняли пользователя!',
         icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500',
       };
+      const rowIdx = requests.value.findIndex(i => i.id == row.id);
+      requests.value.splice(rowIdx, 1);
       break;
     case 'declined':
       declinedEvent.value = row;
-      const rowIdx = requests.value.findIndex(i => i.id == row.id);
-      requests.value.splice(rowIdx, 1);
+
       break;
   }
   setTimeout(() => notification.value.show = false, 3000);

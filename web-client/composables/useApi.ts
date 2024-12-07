@@ -13,6 +13,8 @@ import type {
   ResetPasswordRequest,
 } from '~/types/dtos/reset';
 import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
+import { UserRole } from '~/types/dtos/user';
+import type { User } from 'next-auth';
 
 export default () => {
   const events_api = useEvents();
@@ -149,7 +151,12 @@ export default () => {
     regions: {
       all: regions_all,
       find: region_by_id,
-      update: region_update
+      update: region_update,
+      assign: async (region: string, role: string, user: string) =>
+        $fetch<{id: string}>(helpers_api.REQUEST_URL(`/regions/${region}/assign-${role}/${user}`), {
+          method: 'POST',
+          headers: helpers_api.AUTH_HEADERS(),
+        })
     },
     member_reqs: {
       all: member_reqs_all,
@@ -162,6 +169,12 @@ export default () => {
       create: event_request_create,
     },
     auth: {
+      register: async (body: {email: string, password: string}) =>
+        $fetch<{id: string}>(helpers_api.REQUEST_URL('/users/register'), {
+          method: 'POST',
+          body: body,
+          headers: helpers_api.AUTH_HEADERS(),
+        }),
       reset: password_reset,
       forget: password_forget,
     },

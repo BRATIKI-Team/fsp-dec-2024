@@ -26,7 +26,7 @@ class AuthService:
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.mail_service = mail_service
 
-    async def register(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> bool:
+    async def register(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> str:
         user = await self.user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")
@@ -34,7 +34,7 @@ class AuthService:
         hashed_pwd = self.pwd_context.hash(register_dto.password)
         new_user = User(email=register_dto.email, password=hashed_pwd, role=role)
         user_id = await self.user_service.create(new_user)
-        return user_id is not None
+        return user_id
 
     async def login(self, login_dto: LoginReq) -> LoginResp:
         user = await self.user_service.get_user_by_email(login_dto.email)
@@ -168,6 +168,17 @@ class AuthService:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
         user_role = payload.get("role")
         if user_role != UserRole.ADMIN:
+            raise Exception("You have no permissions")
+        return True
+
+    @classmethod
+    def require_admin_or_super_admin(
+            cls,
+            token: Annotated[str, Depends(OAuth2PasswordBearer(tokenUrl="token"))]
+    ) -> bool:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM)
+        user_role = payload.get("role")
+        if user_role != UserRole.ADMIN and user_role != UserRole.SUPER_ADMIN:
             raise Exception("You have no permissions")
         return True
 

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, EmailStr
 
+class RegisterDto(BaseModel):
+    id: str
 
 class RegisterReq(BaseModel):
     email: EmailStr

@@ -9,7 +9,17 @@
         <UIcon name="i-heroicons-calendar-days" class="w-5 h-5 mr-1" />
         События
       </NuxtLink>
-      <NuxtLink href="/lk/users" class="flex items-center font-semibold" :class="{'text-primary':  route.path.startsWith('/lk/users')}">
+      <template v-if="isAdmin">
+        <NuxtLink href="/lk/users" class="flex items-center font-semibold mr-5" :class="{'text-primary':  route.path.startsWith('/lk/users')}">
+          <UIcon name="i-heroicons-user" class="w-5 h-5 mr-1" />
+          Пользователи
+        </NuxtLink>
+        <NuxtLink href="/lk/regions" class="flex items-center font-semibold" :class="{'text-primary':  route.path.startsWith('/lk/regions')}">
+          <UIcon name="i-heroicons-building-office" class="w-5 h-5 mr-1" />
+          Представительства
+        </NuxtLink>
+      </template>
+      <NuxtLink v-else href="/lk/users" class="flex items-center font-semibold" :class="{'text-primary':  route.path.startsWith('/lk/users')}">
         <UIcon name="i-heroicons-user" class="w-5 h-5 mr-1" />
         Участники
       </NuxtLink>
@@ -28,6 +38,7 @@ const colorMode = useColorMode()
 colorMode.preference = 'light'
 colorMode.value = 'light'
 const route = useRoute()
+const {isAdmin} = await useUser()
 definePageMeta({
   middleware: ['auth']
 })
