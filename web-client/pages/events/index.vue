@@ -13,7 +13,7 @@ import Autocomplete_disciplines from '~/components/autocomplete_disciplines.vue'
 import Autocomplete_regions from '~/components/autocomplete_regions.vue';
 import { EventRequestStatus } from '~/types/dtos/request';
 import type { Badge } from '#ui/types';
-import { format, sub } from 'date-fns';
+import { format } from 'date-fns';
 
 definePageMeta({
   auth: true,
@@ -27,8 +27,8 @@ const route = useRoute();
 const disciplines_filter = ref<string | undefined>();
 const regions_filter = ref<string | undefined>(route.query.region?.toString());
 const range_filter = ref({
-  start: sub(new Date(), { days: 14 }),
-  end: new Date(),
+  start: new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0),
+  end: new Date(new Date().getFullYear(), 11, 31),
 });
 
 const response_state = useState<ISearchResponse<IEventDetail>>(
