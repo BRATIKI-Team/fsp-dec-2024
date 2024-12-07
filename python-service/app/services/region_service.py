@@ -52,7 +52,7 @@ class RegionService(BaseService[Region]):
 
         if role == UserRole.ADMIN:
             region.admin_id = user.id
-            await self.region_repository.update(region)
+            await self.region_repository.update(region.id, region)
         return await self.user_service.update(user_id, user)
 
     @staticmethod
