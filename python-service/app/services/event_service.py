@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Annotated, List
 
 from fastapi import Depends
@@ -87,11 +87,17 @@ class EventService(BaseService[Event]):
 
     @staticmethod
     def __stub_events(region_id: str) -> list[Event]:
+        start_date = datetime.now()
+        end_date = start_date + timedelta(days=5)
+
         return [
             Event(
                 region_id=region_id,
                 name="Event One",
-                datetime=datetime.now(),
+                location="Город проведения 1",
+                participants_count=100,
+                start_date=start_date,
+                end_date=end_date,
                 discipline="Discipline A",
                 description="Description for Event One",
                 documents_ids=[],
@@ -101,7 +107,10 @@ class EventService(BaseService[Event]):
             Event(
                 region_id=region_id,
                 name="Event Two",
-                datetime=datetime.now(),
+                location="Город проведения 2",
+                participants_count=100,
+                start_date=start_date,
+                end_date=end_date,
                 discipline="Discipline B",
                 description="Description for Event Two",
                 documents_ids=[],
@@ -111,7 +120,10 @@ class EventService(BaseService[Event]):
             Event(
                 region_id=region_id,
                 name="Event Three",
-                datetime=datetime.now(),
+                location="Город проведения 3",
+                participants_count=100,
+                start_date=start_date,
+                end_date=end_date,
                 discipline="Discipline C",
                 description="Description for Event Three",
                 documents_ids=[],
