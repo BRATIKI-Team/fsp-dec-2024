@@ -70,3 +70,7 @@ class EventRequestService(BaseService[EventRequest]):
     async def get_by_region_id(self, region_id: str) -> List[EventRequest]:
         filters = {"region_id": region_id}
         return await super().filter(filters)
+
+    async def get_by_event_id(self, event_id: str) -> EventRequest:
+        filters = {"event_id": event_id}
+        return (await super().filter(filters))[0]
