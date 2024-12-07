@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import List, Callable, Any, TypeVar, Generic, Mapping
 
@@ -59,5 +60,12 @@ class FilterRepository(Generic[TEnum]):
 def mongo_multiple_equality_builder(field: str | None, value: Any) -> Mapping[str, Any]:
     if isinstance(field, str) and isinstance(value, List) and all(isinstance(item, (str, int)) for item in value):
         return {field: {"$in": value}}
+
+    raise Exception("Bad configuration of filters.")
+
+
+def mongo_daterange_builder(field: str | None, value: Any) -> Mapping[str, Any]:
+    if isinstance(field, str) and isinstance(value, Mapping) and "start" in value and "end" in value:
+        return {field: {"$gte": datetime.fromisoformat(value["start"]), "$lte": datetime.fromisoformat(value["end"])}}
 
     raise Exception("Bad configuration of filters.")

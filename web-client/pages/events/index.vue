@@ -2,6 +2,7 @@
 import { definePageMeta } from '#imports';
 import type {
   ICriterion,
+  ICriterionStrings,
   ISearchRequest,
   ISearchResponse,
 } from '~/types/dtos/search';
@@ -12,6 +13,7 @@ import Autocomplete_disciplines from '~/components/autocomplete_disciplines.vue'
 import Autocomplete_regions from '~/components/autocomplete_regions.vue';
 import { EventRequestStatus } from '~/types/dtos/request';
 import type { Badge } from '#ui/types';
+import { format, sub } from 'date-fns';
 
 definePageMeta({
   auth: true,
@@ -24,6 +26,10 @@ const route = useRoute();
 
 const disciplines_filter = ref<string | undefined>();
 const regions_filter = ref<string | undefined>(route.query.region?.toString());
+const range_filter = ref({
+  start: sub(new Date(), { days: 14 }),
+  end: new Date(),
+});
 
 const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
@@ -86,22 +92,33 @@ const event_status = (item: IEventDetail): Badge | undefined => {
 const event_date_range = (item: IEventDetail): string =>
   `${item.event.start_date.toLocaleDateString()} - ${item.event.end_date.toLocaleDateString()}`;
 
+const date_range = (range: { start: Date; end: Date }) =>
+  format(range.start, 'dd.MM.yyyy') + ' - ' + format(range.end, 'dd.MM.yyyy');
+
 const on_item_click = (item: IEventDetail) =>
   navigateTo(`/events/${item.event.id}`);
 
 watch(
-  () => [regions_filter.value, disciplines_filter.value],
+  () => [regions_filter.value, disciplines_filter.value, range_filter.value],
   () => {
     const criteria: readonly ICriterion[] = [
+      ...[
+        {
+          field: 'regions',
+          value: [regions_filter.value],
+        },
+        {
+          field: 'disciplines',
+          value: [disciplines_filter.value],
+        },
+      ].filter(
+        (item): item is ICriterionStrings => !item.value.includes(undefined)
+      ),
       {
-        field: 'regions',
-        value: [regions_filter.value],
+        field: 'daterange',
+        value: { start: range_filter.value.start, end: range_filter.value.end },
       },
-      {
-        field: 'disciplines',
-        value: [disciplines_filter.value],
-      },
-    ].filter((item): item is ICriterion => !item.value.includes(undefined));
+    ];
 
     request_state.value = {
       page: 1,
@@ -136,6 +153,17 @@ watch(
         <div class="flex flex-col gap-3">
           <autocomplete_disciplines v-model="disciplines_filter" />
           <autocomplete_regions v-model="regions_filter" />
+          <UPopover>
+            <UInput
+              class="w-full"
+              placeholder="Выберите промежуток времени"
+              size="xl"
+              :model-value="date_range(range_filter)" />
+
+            <template #panel="{ close }">
+              <DatePicker v-model="range_filter" @close="close" />
+            </template>
+          </UPopover>
         </div>
       </template>
     </UAccordion>

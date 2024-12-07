@@ -27,3 +27,4 @@ class Event(BaseModel):
 class EventFilter(str, Enum):
     regions = 'regions'
     disciplines = 'disciplines'
+    daterange = 'daterange'
