@@ -5,9 +5,13 @@ import type {
   IEventCreateRequest,
   IEventDetail,
 } from '~/types/dtos/event';
-import type { IRegion } from '~/types/dtos/region';
-import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 import type { IMemberRequest } from '~/types/dtos/member_request';
+import type { IRegion } from '~/types/dtos/region';
+import type {
+  ForgetPasswordRequest,
+  ResetPasswordRequest,
+} from '~/types/dtos/reset';
+import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 
 export default () => {
   const events_api = useEvents();
@@ -64,8 +68,25 @@ export default () => {
     });
 
   const member_reqs_all = (region: string) =>
-    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${region}`), {
-      method: 'GET',
+    $fetch<readonly IMemberRequest[]>(
+      helpers_api.REQUEST_URL(`/member-reqs/${region}`),
+      {
+        method: 'GET',
+        headers: helpers_api.AUTH_HEADERS(),
+      }
+    );
+
+  const password_reset = (request: ResetPasswordRequest) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/users/reset`), {
+      method: 'PUT',
+      body: request,
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
+  const password_forget = (request: ForgetPasswordRequest) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/users/forget`), {
+      method: 'PUT',
+      body: request,
       headers: helpers_api.AUTH_HEADERS(),
     });
 
@@ -98,6 +119,10 @@ export default () => {
     },
     requests: {
       create: event_request_create,
+    },
+    auth: {
+      reset: password_reset,
+      forget: password_forget,
     },
   };
 };
