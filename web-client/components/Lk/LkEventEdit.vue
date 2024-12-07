@@ -5,24 +5,30 @@ import type { Form, FormSubmitEvent } from '#ui/types';
 import type { IEvent } from '~/types/dtos/event';
 
 const api = useApi();
+const route = useRoute()
 
 const props = withDefaults(defineProps<{
   event?: IEvent
-}>(), {
-});
+}>(), {});
+
+const disciplines = [
+  'Продуктовое программирование'
+]
 
 const schema = object({
   name: string().required(),
   description: string().required(),
-  num: number().min(1).required(),
+  participants_count: number().min(1).required(),
+  discipline: string().required(),
   location: string().required(),
 });
 type Schema = InferType<typeof schema>
 const state = reactive({
-  name: props.event?.name || "",
-  description: props.event?.description || "",
-  num: 1,
-  location: "",
+  name: props.event?.name || '',
+  discipline: props.event?.discipline || '',
+  description: props.event?.description || '',
+  participants_count: 1,
+  location: props.event?.location || '',
 });
 const selected = ref({ start: sub(new Date(), { days: 14 }), end: new Date() });
 
@@ -32,15 +38,20 @@ type File = {
 }
 const files = ref<File[]>(props.event?.documents_ids.length ? props.event?.documents_ids.map(i => ({
   id: i,
-  name: i
+  name: i,
 })) : []);
 
 const protocols = ref<File[]>(props.event?.protocols_ids.length ? props.event?.protocols_ids.map(i => ({
   id: i,
-  name: i
+  name: i,
 })) : []);
 
-
+const notification = ref({
+  show: props.event != undefined && route.query.new == '1',
+  title: 'Успешно',
+  description: 'Вы успешно добавили событие!',
+  icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500'
+})
 const form = ref<Form<Schema>>();
 
 const loading = ref(false);
@@ -54,32 +65,75 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     if (!props.event) {
       const res = await api.events.create({
         name: event.data.name,
-        discipline: 'ПП',
+        discipline: event.data.discipline,
         description: event.data.description,
-        datetime: selected.value.end.toISOString(),
+        start_date: selected.value.start.toISOString(),
+        participants_count: event.data.participants_count,
+        location: event.data.location,
+        end_date: selected.value.end.toISOString(),
         documents_ids: files.value.map(i => i.id),
         protocols_ids: protocols.value.map(i => i.id),
       });
+      notification.value = {
+        show: true,
+        title: 'Успешно',
+        description: 'Вы успешно добавили событие!',
+        icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500'
+      }
+      setTimeout(() => notification.value.show = false, 3000)
+      await navigateTo(`/lk/events/${res.id}?new=1`)
     } else {
       const res = await api.events.update(props.event?.id, {
         name: event.data.name,
-        discipline: 'ПП',
+        discipline: event.data.discipline,
         description: event.data.description,
-        datetime: selected.value.end.toISOString(),
+        start_date: selected.value.start.toISOString(),
+        end_date: selected.value.end.toISOString(),
+        participants_count: event.data.participants_count,
+        location: event.data.location,
         documents_ids: files.value.map(i => i.id),
         protocols_ids: protocols.value.map(i => i.id),
       });
+      notification.value = {
+        show: false,
+        title: 'Успешно',
+        description: 'Вы успешно обновили событие!',
+        icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500'
+      }
+      notification.value.show = true
+      setTimeout(() => notification.value.show = false, 3000)
     }
   } catch (err) {
-
+    console.error(err)
+    notification.value = {
+      show: true,
+      title: 'Ошибка',
+      description: 'Произошла непредвиденная ошибка',
+      icon: 'i-heroicons-exclamation-circle !w-8 !h-8 text-red-500'
+    }
+    setTimeout(() => notification.value.show = false, 3000)
   } finally {
     loading.value = false;
   }
 }
 
+
+
 </script>
 
 <template>
+  <UAlert
+    class="fixed top-12 right-12 max-w-md transition shadow"
+    :class="{
+      'opacity-1': notification.show,
+      'opacity-0': !notification.show,
+    }"
+    :icon="notification.icon"
+    :description="notification.description"
+    :title="notification.title"
+    @close="notification.show = false"
+    :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link', padded: false }"
+  />
   <UForm ref="form" class="shadow-md rounded-2xl px-16 py-14" :schema="schema" :state="state" @submit="onSubmit">
     <UFormGroup label="Название" name="name" class="mb-6">
       <UInput v-model="state.name" input-class="shadow-none text-xl" />
@@ -107,14 +161,25 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </div>
       <div class="w-1/2">
         <UFormGroup label="Количество участников" name="num">
-          <UInput v-model="state.num" textarea-class="shadow-none" />
+          <UInput v-model="state.participants_count" textarea-class="shadow-none" />
         </UFormGroup>
 
       </div>
     </div>
-    <UFormGroup label="Локация" name="location" class="mb-10">
-      <UInput v-model="state.location" textarea-class="shadow-none" />
-    </UFormGroup>
+    <div class="flex mb-10">
+      <div class="w-1/2 mr-6">
+        <UFormGroup label="Локация" name="location" class="mb-10">
+          <UInput v-model="state.location" textarea-class="shadow-none" />
+        </UFormGroup>
+      </div>
+      <div class="w-1/2">
+        <UFormGroup label="Дисциплина" name="discipline" class="mb-10">
+          <USelectMenu v-model="state.discipline" :options="disciplines" select-class="shadow-none" />
+        </UFormGroup>
+
+      </div>
+    </div>
+
 
     <h3 class="mb-3 text-lg font-bold">Документы</h3>
     <client-only>
@@ -131,7 +196,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     </client-only>
 
     <div class="flex items-center">
-      <UButton type="submit" class="mr-4">Сохранить</UButton>
+      <UButton type="submit" :loading="loading" class="mr-4">Сохранить</UButton>
       <!--      <UButton variant="secondary">Отправить в ЕКП</UButton>-->
 
     </div>

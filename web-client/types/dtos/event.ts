@@ -6,7 +6,10 @@ export interface IEvent {
   readonly name: string;
   readonly region_id?: string;
   readonly discipline: string;
-  readonly datetime: Date;
+  readonly start_date: Date;
+  readonly end_date: Date;
+  readonly location: string;
+  readonly participants_count: number;
   readonly description?: string;
   readonly documents_ids: string[];
   readonly protocols_ids: string[];
@@ -24,7 +27,10 @@ export interface IEventCreateRequest {
   name: string,
   discipline: string,
   description: string,
-  datetime: string,
+  start_date: string,
+  end_date: string,
+  participants_count: number;
+  location: string;
   documents_ids: string[],
   protocols_ids: string[]
 }

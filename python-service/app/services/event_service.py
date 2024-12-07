@@ -39,7 +39,10 @@ class EventService(BaseService[Event]):
             name=create_event_dto.name,
             discipline=create_event_dto.discipline,
             description=create_event_dto.description,
-            datetime=create_event_dto.datetime,
+            start_date=create_event_dto.start_date,
+            end_date=create_event_dto.end_date,
+            participants_count=create_event_dto.participants_count,
+            location=create_event_dto.location,
             documents_ids=create_event_dto.documents_ids,
             protocols_ids=create_event_dto.protocols_ids,
             is_approved_event=False

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import useLoading from '~/composables/useLoading';
+import { format } from 'date-fns';
 
 const auth = useAuth();
 
@@ -13,13 +14,13 @@ const columns = [
 ];
 
 const api = useApi();
-const loading = useLoading();
+const loading = ref(false);
 
-const page = useState(() => 1);
-const pageCount = useState(() => 5);
+const page = ref(1);
+const pageCount = ref(5);
 
 const updateState = async () => {
-  loading.on_load_start();
+  loading.value = true;
   const events = await api.events.search({
     page: page.value,
     page_size: pageCount.value,
@@ -31,21 +32,28 @@ const updateState = async () => {
       },
     ],
   });
-
-  loading.on_load_end();
+  loading.value = false;
   return {
-    items: events.items.map(i => ({
-      ...i.event,
-      datetime: i.event.datetime.toLocaleString(),
-      region: i.region?.name,
-      regionEmail: i.region?.contacts.email,
-    })),
+    items: events.items.map(i => {
+      const datetime = format(i.event.start_date, 'dd.MM.yyyy') + " - " + format(i.event.end_date, 'dd.MM.yyyy')
+      return {
+        ...i.event,
+        datetime: datetime,
+        region: i.region?.name,
+        regionEmail: i.region?.contacts.email,
+      }
+    }),
     total: events.total,
   };
 }
 
-const { data: events } = await useAsyncData(updateState);
-await updateState()
+const events = await useState(() => ({
+  items: [],
+  total: 0
+}));
+onMounted(async () => {
+  events.value = await updateState()
+})
 watch(page, async () => {
   events.value = await updateState()
 });
@@ -76,6 +84,8 @@ const items = (row: any) => [
 </script>
 
 <template>
+  <h1 class="text-4xl font-bold mb-8">События</h1>
+
   <div class="shadow-md rounded-2xl divide-y divide-gray-200 dark:divide-gray-700">
     <div class="flex items-center justify-between gap-3 px-4 py-3">
       <div class="flex items-center gap-1.5">
@@ -94,7 +104,7 @@ const items = (row: any) => [
         </UButton>
       </NuxtLink>
     </div>
-    <UTable :rows="events.items" :columns="columns" :loading="loading.in_progress.value"
+    <UTable :rows="events.items" :columns="columns" :loading="loading"
             :progress="{ color: 'primary', animation: 'carousel' }">
       <template #actions-data="{ row }">
         <UDropdown :items="items(row)">

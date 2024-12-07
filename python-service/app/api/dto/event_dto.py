@@ -13,6 +13,8 @@ class CreateEventReq(BaseModel):
     name: str
     discipline: str
     description: str
+    location: str
+    participants_count: int
     start_date: datetime
     end_date: datetime
     documents_ids: List[str]

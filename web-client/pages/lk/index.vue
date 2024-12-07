@@ -16,7 +16,7 @@ const schema = object({
 })
 type Schema = InferType<typeof schema>
 const state = reactive({
-  edit: true,
+  edit: false,
   name: region.value?.name,
   description: region.value?.description,
   phone: region.value?.contacts.phone,

@@ -55,7 +55,7 @@ const onSubmit = async (data: {
   error.value = false;
   loading.value = true;
   try {
-    await auth_api.signIn(data, { callbackUrl: '/app/events' });
+    await auth_api.signIn(data, { callbackUrl: '/lk' });
   } catch (_) {
     error.value = true;
     loading.value = false;
