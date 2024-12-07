@@ -11,4 +11,4 @@ class Region(BaseModel):
     description: str
     is_main: bool
     contacts: Contacts
-    admin_id: str
+    admin_id: Optional[str] = None
