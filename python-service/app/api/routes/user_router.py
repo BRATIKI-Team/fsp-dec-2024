@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Body
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
 from app.api.dto.user_dto import UserDto
-from app.data.domains.user import User
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
 
@@ -54,7 +53,7 @@ async def refresh_token(
 @router.get("/get-all", name="users:get-all")
 async def get_all(
         user_service: Annotated[UserService, Depends(UserService)]
-) -> List[User]:
+) -> List[UserDto]:
     return await user_service.get_all()
 
 

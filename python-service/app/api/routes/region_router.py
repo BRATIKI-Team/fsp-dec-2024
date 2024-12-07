@@ -23,7 +23,7 @@ async def assign_member(
 async def assign_admin(
         region_id: str,
         user_id: str,
-        require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
+        #require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
         region_service: Annotated[RegionService, Depends(RegionService)]
 ) -> bool:
     return await region_service.assign_admin(region_id, user_id)
