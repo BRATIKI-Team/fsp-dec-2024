@@ -19,7 +19,6 @@ async def list_all(
 ) -> List[Event]:
     return await event_service.get_all()
 
-
 @router.get("/disciplines", name="events:disciplines")
 async def list_all(
         event_service: Annotated[EventService, Depends(EventService)]
@@ -36,7 +35,6 @@ async def get_by_id(
     return await event_mapper.map_event_to_extend(
         await event_service.get(event_id)
     )
-
 
 @router.post("", name="events:create")
 async def create_event(
