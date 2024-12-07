@@ -57,15 +57,16 @@ class EventSeeder(BaseService[Event]):
         events = []
         for year in range(2022, 2025):
             for month in range(1, 13):
-                event = self.__seed_event(year, month, region_id, names)
-                events.append(event)
+                events_month = self.__seed_events_month(year, month, region_id, names)
+                for event in events_month:
+                    events.append(event)
 
         return events
 
     @staticmethod
-    def __seed_event(year: int, month: int, region_id: str, names: List[str]) -> Event:
-
-        num_events = random.randint(1, 10)
+    def __seed_events_month(year: int, month: int, region_id: str, names: List[str]) -> List[Event]:
+        events_month = []
+        num_events = random.randint(1, 3)
 
         for _ in range(num_events):
             day = random.randint(1, 28)
@@ -89,7 +90,9 @@ class EventSeeder(BaseService[Event]):
                 is_approved_event=random.choice([True, False])
             )
 
-            return event
+            events_month.append(event)
+
+        return events_month
 
     @staticmethod
     def __seed_teams_results(regions: List[Region], names: List[str]) -> List[TeamResult]:
