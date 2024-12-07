@@ -2,7 +2,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, Body
 
-from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq
 from app.api.dto.user_dto import UserDto
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -36,7 +36,7 @@ async def reset(
 
 @router.put('/reset', name="users:reset")
 async def reset(
-        reset_dto: Annotated[RefreshTokenReq, Body(...)],
+        reset_dto: Annotated[ResetPasswordReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
 ) -> None:
     return await auth_service.reset_password(reset_dto)

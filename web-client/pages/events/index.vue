@@ -24,12 +24,17 @@ const api = useApi();
 const loading = useLoading();
 const route = useRoute();
 
-const disciplines_filter = ref<string | undefined>();
-const regions_filter = ref<string | undefined>(route.query.region?.toString());
-const range_filter = ref({
+const disciplines_filter = useState<string | undefined>(
+  'events_disciplines_filter'
+);
+const regions_filter = useState<string | undefined>(
+  'events_regions_filter',
+  () => route.query.region?.toString()
+);
+const range_filter = useState('events_range_filter', () => ({
   start: new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0),
   end: new Date(new Date().getFullYear(), 11, 31),
-});
+}));
 
 const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
@@ -177,7 +182,7 @@ watch(
       :description="item.event.description"
       :price="event_date_range(item)"
       :features="event_features(item)"
-      :ui="{ amount: { price: 'sm:text-3xl' } }"
+      :ui="{ amount: { price: 'sm:text-2xl' } }"
       orientation="horizontal" />
 
     <UCard class="text-center" v-if="response_state.items.length === 0"

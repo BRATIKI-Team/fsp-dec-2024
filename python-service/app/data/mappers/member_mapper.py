@@ -13,10 +13,11 @@ class MemberMapper:
 
     async def map_member_to_extend(self, member: MemberRequest) -> ExtendedMemberRequest:
         user = await self._user_service.get(member.user_id)
+        userDto = self._user_service.get_user_dto(user, None)
 
         return ExtendedMemberRequest(
             id=member.id,
             region_id=member.region_id,
-            user=user,
+            user=userDto,
             status=member.status,
         )

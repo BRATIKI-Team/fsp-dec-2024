@@ -21,6 +21,15 @@ class BaseRepository:
         result = await self.collection.insert_one(item.model_dump(exclude_unset=True))
         return str(result.inserted_id)
 
+    async def insert_many(self, items: List[T]) -> List[str]:
+        """Insert multiple documents into the collection."""
+        if not items:
+            raise ValueError("The 'items' list cannot be empty.")
+
+        documents = [item.model_dump(exclude_unset=True) for item in items]
+        result = await self.collection.insert_many(documents)
+        return [str(inserted_id) for inserted_id in result.inserted_ids]
+
     async def delete(self, item_id: str) -> bool:
         """Delete a document by ID."""
         result = await self.collection.delete_one({"_id": ObjectId(item_id)})

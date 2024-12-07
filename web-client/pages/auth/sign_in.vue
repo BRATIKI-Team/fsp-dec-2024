@@ -89,6 +89,12 @@ const onSubmit = async (data: {
         title="Что-то пошло не так. Проверьте данные." />
     </template>
 
+    <template #password-hint>
+      <NuxtLink class="text-primary font-medium" to="/auth/recovery"
+        >Забыли пароль?
+      </NuxtLink>
+    </template>
+
     <template #footer>
       Входя в систему, Вы соглашаетесь с
       <NuxtLink

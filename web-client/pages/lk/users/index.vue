@@ -1,43 +1,65 @@
 <script setup lang="ts">
-
-import { format } from 'date-fns';
-
 const columns = [
-  { key: 'name', label: 'Имя' },
+  { key: 'id', label: 'ID заявки' },
   { key: 'email', label: 'Email' },
   { key: 'actions' },
 ];
+const notification = ref({
+  show: false,
+  title: '',
+  description: '',
+  icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500',
+});
 
 const api = useApi();
-const {getSession} = useAuth()
+const { getSession } = useAuth();
 const loading = ref(false);
 
 const page = ref(1);
 const pageCount = ref(5);
 
-const users = useState(() => ({
-  items: [],
-  total: 1,
-}));
+const me = await getSession();
+
+const users = useState<Array<{ id: string, email: string }>>(() => []);
 
 const updateState = async () => {
   loading.value = true;
-  const me = await getSession()
   const reqs = await api.member_reqs.all(me?.region.id);
   loading.value = false;
-  return {
-    items: events.items.map(i => {
-      const datetime = format(i.event.start_date, 'dd.MM.yyyy') + " - " + format(i.event.end_date, 'dd.MM.yyyy')
-      return {
-        ...i.event,
-        datetime: datetime,
-        region: i.region?.name,
-        regionEmail: i.region?.contacts.email,
-      }
-    }),
-    total: events.total,
-  };
-}
+  return reqs.map(i => ({
+    id: i.id,
+    email: i.user.email,
+  }));
+};
+
+onMounted(async () => {
+  users.value = await updateState();
+});
+
+const changeStatus = async (row: any, status: string) => {
+  await api.member_reqs.change_status(row.id, status);
+  const rowIdx = users.value.findIndex(i => i.id == row.id);
+  users.value.splice(rowIdx, 1);
+  switch (status) {
+    case 'approved':
+      notification.value = {
+        show: true,
+        title: 'Успешно',
+        description: 'Вы успешно приняли пользователя!',
+        icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500',
+      };
+      break;
+    case 'declined':
+      notification.value = {
+        show: true,
+        title: 'Отклонен',
+        description: 'Заявка пользователя отклонена',
+        icon: 'i-heroicons-exclamation-circle !w-8 !h-8 text-red-500',
+      };
+      break;
+  }
+  setTimeout(() => notification.value.show = false, 3000);
+};
 
 definePageMeta({
   layout: 'lk',
@@ -45,45 +67,41 @@ definePageMeta({
 </script>
 
 <template>
+  <UAlert
+    class="fixed top-12 right-12 max-w-md transition shadow"
+    :class="{
+      'opacity-1': notification.show,
+      'opacity-0': !notification.show,
+    }"
+    :icon="notification.icon"
+    :description="notification.description"
+    :title="notification.title"
+    @close="notification.show = false"
+    :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link', padded: false }"
+  />
   <h1 class="mb-8 text-4xl font-bold">Заявки</h1>
   <div
-    class="divide-y divide-gray-200 rounded-2xl shadow-md dark:divide-gray-700">
-    <div class="flex items-center justify-between gap-3 px-4 py-3">
-      <div class="flex items-center gap-1.5">
-        <span class="text-sm leading-5">Rows per page:</span>
+    class="rounded-2xl shadow-md">
 
-        <USelect
-          class="me-2 w-20"
-          v-model="pageCount"
-          :options="[3, 5, 10, 20, 30, 40]"
-          size="xs" />
-      </div>
-      <NuxtLink href="/lk/events/add">
-        <UButton class="h-7 w-7 rounded-full p-2">
-          <UIcon class="h-5 w-5 cursor-pointer" name="i-heroicons-plus" />
-        </UButton>
-      </NuxtLink>
-    </div>
     <UTable
-      :rows="users.items"
+      :rows="users"
       :columns="columns"
       :loading="loading"
       :progress="{ color: 'primary', animation: 'carousel' }">
-      <template #actions-data="{ row }"> </template>
+      <template #actions-data="{ row }">
+        <div class="flex">
+          <UIcon @click="changeStatus(row, 'approved')" name="i-heroicons-check"
+                 class="w-5 h-5 text-green-500 hover:text-green-600 cursor-pointer mr-2" />
+          <UIcon @click="changeStatus(row, 'declined')" name="i-heroicons-no-symbol"
+                 class="w-5 h-5 text-red-500 hover:text-red-600 cursor-pointer" />
+        </div>
+      </template>
       <template #empty-state>
         <div class="flex flex-col items-center justify-center gap-3 py-6">
           <span class="text-sm italic">Нет новых заявок на вступление.</span>
         </div>
       </template>
     </UTable>
-
-    <div
-      class="flex justify-end border-t border-gray-200 px-3 py-3.5 dark:border-gray-700">
-      <UPagination
-        v-model="page"
-        :page-count="pageCount"
-        :total="users.total" />
-    </div>
   </div>
 </template>
 

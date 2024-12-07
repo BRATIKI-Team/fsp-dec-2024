@@ -9,7 +9,8 @@
       <UButton
         icon="i-heroicons-arrow-right-start-on-rectangle"
         color="gray"
-        variant="ghost" />
+        variant="ghost"
+        @click="navigateTo('/auth/sign_in')" />
     </template>
   </UHeader>
 
@@ -46,11 +47,13 @@
 </template>
 
 <script setup lang="ts">
+const config = useConfig();
+
 const links = [
   {
     label: 'О нас',
     icon: 'i-heroicons-book-open',
-    to: '/faq',
+    to: config.FAQ_URL(),
   },
   {
     label: 'Афиша',

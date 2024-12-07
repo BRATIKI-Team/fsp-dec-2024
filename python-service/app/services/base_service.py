@@ -13,6 +13,10 @@ class BaseService(Generic[T]):
         """Create a new item using the repository's insert method."""
         return await self.repository.insert(item)
 
+    async def create_many(self, items: List[T]) -> List[str]:
+        """Insert multiple documents into the collection."""
+        return await self.repository.insert_many(items)
+
     async def delete(self, item_id: str) -> bool:
         """Delete an item by its ID."""
         return await self.repository.delete(item_id)

@@ -32,6 +32,8 @@ class EventMapper:
                      await self._file_service.get_many(event.documents_ids)] if event.documents_ids else []
         protocols = [doc.get_dto() for doc in
                      await self._file_service.get_many(event.protocols_ids)] if event.protocols_ids else []
+        result = (await self._file_service.get(event.result_file_id)).get_dto() if event.result_file_id else None
+        results = [result] if result else []
 
         return ExtendedEvent(
             user=user,
@@ -39,5 +41,6 @@ class EventMapper:
             region=region,
             documents=documents,
             protocols=protocols,
-            request=request
+            request=request,
+            results=results
         )

@@ -5,9 +5,14 @@ import type {
   IEventCreateRequest,
   IEventDetail,
 } from '~/types/dtos/event';
-import type { IRegion } from '~/types/dtos/region';
-import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 import type { IMemberRequest } from '~/types/dtos/member_request';
+import type { IEventRequest } from '~/types/dtos/event_request';
+import type { IRegion } from '~/types/dtos/region';
+import type {
+  ForgetPasswordRequest,
+  ResetPasswordRequest,
+} from '~/types/dtos/reset';
+import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 
 export default () => {
   const events_api = useEvents();
@@ -64,10 +69,46 @@ export default () => {
     });
 
   const member_reqs_all = (region: string) =>
-    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${region}`), {
+    $fetch<readonly IMemberRequest[]>(
+      helpers_api.REQUEST_URL(`/member-reqs/${region}`),
+      {
+        method: 'GET',
+        headers: helpers_api.AUTH_HEADERS(),
+      }
+    );
+
+  const password_reset = (request: ResetPasswordRequest) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/users/reset`), {
+      method: 'PUT',
+      body: request,
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
+  const password_forget = (request: ForgetPasswordRequest) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/users/forget`), {
+      method: 'PUT',
+      body: request,
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
+  const download_file = (id: string) =>
+    $fetch<void>(helpers_api.REQUEST_URL(`/files/${id}/download`), {
       method: 'GET',
       headers: helpers_api.AUTH_HEADERS(),
     });
+
+  const member_reqs_change_status = (req: string, status: string) =>
+    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${req}/set-status/${status}`), {
+      method: 'POST',
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
+  const region_update = async (id: string, body: IRegion) =>
+      $fetch<IRegion>(helpers_api.REQUEST_URL(`/regions/${id}`), {
+        method: 'PUT',
+        body: body,
+        headers: helpers_api.AUTH_HEADERS(),
+      })
 
   return {
     events: {
@@ -85,19 +126,47 @@ export default () => {
           headers: helpers_api.AUTH_HEADERS(),
         }),
       find: event_by_id,
+      requests: {
+        all: async () =>
+          $fetch<Array<IEventRequest>>(helpers_api.REQUEST_URL('/event-requests/list-all'), {
+            method: 'GET',
+            headers: helpers_api.AUTH_HEADERS(),
+          }),
+        change_status: async (req: string, body: {
+          id: string,
+          event_id: string,
+          region_id: string,
+          status: string,
+          canceled_reason: string,
+        }) =>
+          $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/set-status`), {
+            method: 'POST',
+            body: body,
+            headers: helpers_api.AUTH_HEADERS(),
+          }),
+      }
     },
     regions: {
       all: regions_all,
       find: region_by_id,
+      update: region_update
     },
     member_reqs: {
       all: member_reqs_all,
+      change_status: member_reqs_change_status
     },
     disciplines: {
       all: disciplines_all,
     },
     requests: {
       create: event_request_create,
+    },
+    auth: {
+      reset: password_reset,
+      forget: password_forget,
+    },
+    files: {
+      download: download_file,
     },
   };
 };
