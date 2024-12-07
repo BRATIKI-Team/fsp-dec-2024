@@ -21,6 +21,7 @@ export interface IEventDetail {
   readonly event: IEvent;
   readonly region?: IRegion;
   readonly user?: IUser;
+  readonly protocols: readonly string[];
 }
 
 export interface IEventCreateRequest {

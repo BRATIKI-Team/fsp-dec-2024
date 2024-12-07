@@ -25,6 +25,7 @@ const regions_filter = ref<string | undefined>();
 const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
   () => ({
+    total: 0,
     page: 0,
     page_size: 10,
     items: [],
@@ -66,6 +67,9 @@ const event_features = (item: IEventDetail) =>
     (x): x is string => x !== undefined
   );
 
+const on_item_click = (item: IEventDetail) =>
+  navigateTo(`/events/${item.event.id}`);
+
 watch(
   () => [regions_filter.value, disciplines_filter.value],
   () => {
@@ -87,6 +91,7 @@ watch(
     };
 
     response_state.value = {
+      total: 0,
       page: 0,
       page_size: 10,
       items: [],
@@ -103,6 +108,8 @@ watch(
   <div
     class="mt-8 flex flex-col gap-8 lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
     <UAccordion
+      variant="outline"
+      size="xl"
       :items="[
         { label: 'Фильтры', icon: 'i-heroicons-adjustments-horizontal' },
       ]">
@@ -115,7 +122,9 @@ watch(
     </UAccordion>
 
     <UPricingCard
+      class="cursor-pointer hover:scale-[101%]"
       v-for="item in response_state.items"
+      v-on:click="on_item_click(item)"
       :title="item.event.name"
       :description="item.event.description"
       :price="item.event.datetime.toLocaleDateString()"
@@ -131,7 +140,8 @@ watch(
       v-on:click="search()"
       :loading="loading.in_progress.value"
       label="Загрузить ещё..."
-      variant="soft"
+      variant="outline"
+      size="xl"
       block />
   </div>
 </template>

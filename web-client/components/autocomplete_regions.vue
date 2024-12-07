@@ -14,6 +14,7 @@ api.regions.all().then(response => (options.value = response));
   <UInputMenu
     v-model="model"
     placeholder="Выберите регион"
+    size="xl"
     :options="[...options]"
     value-attribute="id"
     option-attribute="name" />

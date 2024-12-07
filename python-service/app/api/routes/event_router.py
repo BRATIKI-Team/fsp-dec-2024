@@ -18,18 +18,21 @@ async def list_all(
 ) -> List[Event]:
     return await event_service.get_all()
 
+
 @router.get("/disciplines", name="events:disciplines")
 async def list_all(
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> List[str]:
     return await event_service.disciplines()
 
+
 @router.get("/{event_id}", name="events:get-by-id")
 async def get_by_id(
         event_id: str,
         event_service: Annotated[EventService, Depends(EventService)]
-) -> Optional[Event]:
+) -> Optional[ExtendedEvent]:
     return await event_service.get(event_id)
+
 
 @router.post("", name="events:create")
 async def create_event(
@@ -39,12 +42,14 @@ async def create_event(
 ) -> Event:
     return await event_service.create_event(user_id, create_event_dto)
 
+
 @router.post("/search", name="events:search")
 async def search(
         page: SearchReq,
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> Page[ExtendedEvent]:
     return await event_service.search(page)
+
 
 # todo: only for member
 @router.put("/{event_id}", name="events:update")
