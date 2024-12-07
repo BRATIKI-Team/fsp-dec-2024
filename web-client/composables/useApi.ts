@@ -8,6 +8,7 @@ import type {
 import type { IRegion } from '~/types/dtos/region';
 import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
 import type { IMemberRequest } from '~/types/dtos/member_request';
+import type { IEventRequest } from '~/types/dtos/event_request';
 
 export default () => {
   const events_api = useEvents();
@@ -69,6 +70,19 @@ export default () => {
       headers: helpers_api.AUTH_HEADERS(),
     });
 
+  const member_reqs_change_status = (req: string, status: string) =>
+    $fetch<readonly IMemberRequest[]>(helpers_api.REQUEST_URL(`/member-reqs/${req}/set-status/${status}`), {
+      method: 'POST',
+      headers: helpers_api.AUTH_HEADERS(),
+    });
+
+  const region_update = async (id: string, body: IRegion) =>
+      $fetch<IRegion>(helpers_api.REQUEST_URL(`/regions/${id}`), {
+        method: 'PUT',
+        body: body,
+        headers: helpers_api.AUTH_HEADERS(),
+      })
+
   return {
     events: {
       search: events_search,
@@ -85,13 +99,34 @@ export default () => {
           headers: helpers_api.AUTH_HEADERS(),
         }),
       find: event_by_id,
+      requests: {
+        all: async () =>
+          $fetch<Array<IEventRequest>>(helpers_api.REQUEST_URL('/event-requests/list-all'), {
+            method: 'GET',
+            headers: helpers_api.AUTH_HEADERS(),
+          }),
+        change_status: async (req: string, body: {
+          id: string,
+          event_id: string,
+          region_id: string,
+          status: string,
+          canceled_reason: string,
+        }) =>
+          $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/set-status`), {
+            method: 'POST',
+            body: body,
+            headers: helpers_api.AUTH_HEADERS(),
+          }),
+      }
     },
     regions: {
       all: regions_all,
       find: region_by_id,
+      update: region_update
     },
     member_reqs: {
       all: member_reqs_all,
+      change_status: member_reqs_change_status
     },
     disciplines: {
       all: disciplines_all,

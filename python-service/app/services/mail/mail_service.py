@@ -25,7 +25,7 @@ class MailService:
         template = Template(html_template)
         html_body = template.render(
             event_name=event.name,
-            event_datetime=event.datetime.strftime('%Y-%m-%d %H:%M'),
+            # TODO: ANDRY # event_datetime=event.datetime.strftime('%Y-%m-%d %H:%M'),
             event_region=event.region_id,
             canceled_reason=event_req.canceled_reason or "No reason provided."
         )

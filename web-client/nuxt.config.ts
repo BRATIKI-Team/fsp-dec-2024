@@ -45,6 +45,7 @@ export default defineNuxtConfig({
         dataType: {
           id: 'string',
           email: 'string',
+          role: 'string',
           region: {
             id: 'string',
           },

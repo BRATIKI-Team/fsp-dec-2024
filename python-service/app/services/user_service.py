@@ -46,6 +46,7 @@ class UserService(BaseService[User]):
         region_dto = None if not region_model else RegionDto(
             id=region_model.id,
             name=region_model.name,
+            subject=region_model.subject,
             description=region_model.description,
             is_main=region_model.is_main,
             contacts=region_model.contacts,

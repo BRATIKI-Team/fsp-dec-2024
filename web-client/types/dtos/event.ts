@@ -5,6 +5,7 @@ import type { IUser } from '~/types/dtos/user';
 export interface IEvent {
   readonly id: string;
   readonly name: string;
+  readonly subject: string;
   readonly region_id?: string;
   readonly discipline: string;
   readonly start_date: Date;
