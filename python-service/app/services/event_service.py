@@ -68,6 +68,14 @@ class EventService(BaseService[Event]):
     async def search(self, req: SearchReq) -> Page[Event]:
         return await self._event_repository.search(req=req)
 
+    async def region_events_for_year(self, region_id: str, year: int) -> List[Event]:
+        start_of_year = datetime(year, 1, 1)
+        filters = {
+            "region_id": region_id,
+            "start_date": {"$gte": start_of_year}
+        }
+        return await self._event_repository.filter(filters)
+
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
         names = self.__get_names_from_file('app/generator/docs/names.json')
