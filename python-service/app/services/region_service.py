@@ -11,8 +11,10 @@ from app.services.user_service import UserService
 
 
 class RegionService(BaseService[Region]):
-    def __init__(self, region_repository: Annotated[RegionRepository, Depends(RegionRepository)],
-                 user_service: Annotated[UserService, Depends(UserService)]):
+    def __init__(
+            self,
+            region_repository: Annotated[RegionRepository, Depends(RegionRepository)],
+            user_service: Annotated[UserService, Depends(UserService)]):
         super().__init__(region_repository)
         self.region_repository = region_repository
         self.user_service = user_service
@@ -47,6 +49,10 @@ class RegionService(BaseService[Region]):
 
         user.role = role
         user.region_id = region_id
+
+        if role == UserRole.ADMIN:
+            region.admin_id = user.id
+            await self.region_repository.update(region.id, region)
         return await self.user_service.update(user_id, user)
 
     @staticmethod
