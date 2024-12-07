@@ -2,7 +2,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
-  modules: ['@sidebase/nuxt-auth', '@nuxt/ui', '@nuxt/image', '@vee-validate/nuxt',],
+  modules: [
+    '@sidebase/nuxt-auth',
+    '@nuxt/ui',
+    '@nuxt/image',
+    '@vee-validate/nuxt',
+  ],
   extends: ['@nuxt/ui-pro'],
   runtimeConfig: {
     public: {
@@ -12,11 +17,11 @@ export default defineNuxtConfig({
   },
   auth: {
     isEnabled: true,
-    baseURL: `${process.env.NUXT_BACKEND_URL}/user/`,
+    baseURL: `${process.env.NUXT_BACKEND_URL}/users/`,
     provider: {
       type: 'local',
       endpoints: {
-        signIn: { path: 'login', method: 'post'},
+        signIn: { path: 'login', method: 'post' },
         signUp: { path: 'register', method: 'post' },
         getSession: { path: 'me', method: 'get' },
       },
@@ -41,8 +46,8 @@ export default defineNuxtConfig({
           id: 'string',
           email: 'string',
           region: {
-            id: 'string'
-          }
+            id: 'string',
+          },
         },
       },
     },
@@ -56,8 +61,8 @@ export default defineNuxtConfig({
             dimmed: '#94A3B8',
             accented: '#CBD5E1',
           },
-        }
+        },
       },
-    }
-  }
+    },
+  },
 });

@@ -28,8 +28,10 @@ class EventMapper:
         region = await self._region_service.get(event.region_id)
         request = await self._request_service.get_by_event_id(event.id)
 
-        documents = [doc.get_dto() for doc in await self._file_service.get_many(event.documents_ids)]
-        protocols = [doc.get_dto() for doc in await self._file_service.get_many(event.protocols_ids)]
+        documents = [doc.get_dto() for doc in
+                     await self._file_service.get_many(event.documents_ids)] if event.documents_ids else []
+        protocols = [doc.get_dto() for doc in
+                     await self._file_service.get_many(event.protocols_ids)] if event.protocols_ids else []
 
         return ExtendedEvent(
             user=user,
