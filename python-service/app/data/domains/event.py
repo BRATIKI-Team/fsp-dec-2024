@@ -20,9 +20,9 @@ class Event(BaseModel):
     description: Optional[str] = None
     documents_ids: Optional[List[str]] = None
     protocols_ids: Optional[List[str]] = None
+    result_file_id: Optional[str] = None
     teams_results: Optional[List[TeamResult]] = None
     is_approved_event: bool
-
 
 class EventFilter(str, Enum):
     regions = 'regions'
