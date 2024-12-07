@@ -42,11 +42,11 @@ const go_back = () => router.back();
             icon="i-heroicons-arrow-long-left"
             variant="outline"
             size="xl" />
-          <div class="text-4xl font-semibold">{{ data.name }}</div>
+          <div class="text-4xl font-semibold">{{ data.subject }}</div>
         </div>
 
         <div class="text-2xl">
-          {{ data.description }}
+          {{ data.name }}
         </div>
 
         <div class="mt-8 flex flex-col gap-4">
@@ -60,6 +60,12 @@ const go_back = () => router.back();
             <div>{{ data.contacts.email }}</div>
           </div>
         </div>
+
+        <NuxtLink
+          class="mt-8 flex flex-col gap-4 underline"
+          :href="'/events?region=' + data.id"
+          >Все события
+        </NuxtLink>
       </div>
     </UCard>
   </div>

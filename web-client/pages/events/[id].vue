@@ -52,7 +52,6 @@ const event_request_create = (id: string) => {
 };
 
 const go_back = () => router.back();
-const go_region = (id: string) => navigateTo(`/regions/${id}`);
 
 const button_tooltip = (item: IEventDetail): string | undefined => {
   if (item.request === null) return 'Ваша заявка будет рассмотрена ЦП ФСП.';
@@ -93,11 +92,11 @@ const button_tooltip = (item: IEventDetail): string | undefined => {
 
         <div class="flex items-center gap-4" v-if="data.region">
           <UIcon class="h-8 w-8" name="i-heroicons-home-modern" />
-          <div
-            class="cursor-pointer text-2xl underline"
-            @click="go_region(data.region.id)">
+          <NuxtLink
+            class="text-2xl underline"
+            :href="'/regions/' + data.region.id">
             {{ data.region.name }}
-          </div>
+          </NuxtLink>
         </div>
 
         <UAccordion

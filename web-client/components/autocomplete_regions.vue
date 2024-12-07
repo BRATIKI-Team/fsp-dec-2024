@@ -17,5 +17,5 @@ api.regions.all().then(response => (options.value = response));
     size="xl"
     :options="[...options]"
     value-attribute="id"
-    option-attribute="name" />
+    option-attribute="subject" />
 </template>
