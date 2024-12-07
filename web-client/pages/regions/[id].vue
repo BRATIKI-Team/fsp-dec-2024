@@ -4,10 +4,7 @@ import useLoading from '~/composables/useLoading';
 import { definePageMeta } from '#imports';
 import type { IRegion } from '~/types/dtos/region';
 
-definePageMeta({
-  auth: true,
-  layout: 'grid',
-});
+definePageMeta({ layout: 'grid' });
 
 const router = useRouter();
 const route = useRoute();

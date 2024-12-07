@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
+from app.api.dto import SearchReq, Page
 from app.data.domains.region import Region
 from app.data.domains.user import UserRole
 from app.data.repositories.region_repository import RegionRepository
@@ -55,3 +56,6 @@ class RegionService(BaseService[Region]):
             region.admin_id = user.id
             await self._region_repository.update(region.id, region)
         return await self._user_service.update(user_id, user)
+
+    async def search(self, req: SearchReq) -> Page[Region]:
+        return await self._region_repository.search(req=req)

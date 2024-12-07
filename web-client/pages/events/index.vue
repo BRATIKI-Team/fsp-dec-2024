@@ -15,10 +15,7 @@ import { EventRequestStatus } from '~/types/dtos/request';
 import type { Badge } from '#ui/types';
 import { format } from 'date-fns';
 
-definePageMeta({
-  auth: true,
-  layout: 'grid',
-});
+definePageMeta({ layout: 'grid' });
 
 const api = useApi();
 const loading = useLoading();
@@ -27,14 +24,16 @@ const route = useRoute();
 const disciplines_filter = useState<string | undefined>(
   'events_disciplines_filter'
 );
-const regions_filter = useState<string | undefined>(
-  'events_regions_filter',
-  () => route.query.region?.toString()
-);
+const regions_filter = useState<string | undefined>('events_regions_filter');
 const range_filter = useState('events_range_filter', () => ({
   start: new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0),
   end: new Date(new Date().getFullYear(), 11, 31),
 }));
+
+const region_id = route.query.region?.toString();
+if (region_id) {
+  regions_filter.value = region_id;
+}
 
 const response_state = useState<ISearchResponse<IEventDetail>>(
   'events_response',
@@ -182,7 +181,7 @@ watch(
       :description="item.event.description"
       :price="event_date_range(item)"
       :features="event_features(item)"
-      :ui="{ amount: { price: 'sm:text-2xl' } }"
+      :ui="{ amount: { price: 'text-xl' } }"
       orientation="horizontal" />
 
     <UCard class="text-center" v-if="response_state.items.length === 0"

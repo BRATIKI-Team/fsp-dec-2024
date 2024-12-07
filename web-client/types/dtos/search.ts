@@ -1,3 +1,8 @@
+export interface ICriterionString {
+  readonly field: string;
+  readonly value: string;
+}
+
 export interface ICriterionStrings {
   readonly field: string;
   readonly value: string[];
@@ -8,7 +13,10 @@ export interface ICriterionDateRange {
   readonly value: { readonly start: Date; readonly end: Date };
 }
 
-export type ICriterion = ICriterionStrings | ICriterionDateRange;
+export type ICriterion =
+  | ICriterionString
+  | ICriterionStrings
+  | ICriterionDateRange;
 
 export interface ISearchRequest {
   readonly page: number;

@@ -5,7 +5,6 @@ import useLoading from '~/composables/useLoading';
 import type { IEventDetail } from '~/types/dtos/event';
 
 definePageMeta({
-  auth: true,
   layout: 'grid',
 });
 
