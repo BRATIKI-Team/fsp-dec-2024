@@ -61,18 +61,18 @@ class RegionService(BaseService[Region]):
             Region(
                 name="North Region",
                 description="Region characterized by mountain landscapes.",
-                isMain=True,
+                is_main=True,
                 contacts=Contacts(email="north@example.com", phone="123-456-7890", social_links=[""])
             ),
             Region(
                 name="South Region",
                 description="Region known for its sunny beaches.",
-                isMain=False,
+                is_main=False,
                 contacts=Contacts(email="south@example.com", phone="234-567-8901", social_links=[""])
             ),
             Region(
                 name="East Region",
                 description="Region with a rich cultural heritage.",
-                isMain=False,
+                is_main=False,
                 contacts=Contacts(email="east@example.com", phone="345-678-9012", social_links=[""])
             )]
