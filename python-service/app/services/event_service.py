@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated, List
 
 from fastapi import Depends
@@ -5,9 +6,7 @@ from fastapi import Depends
 from app.api.dto import SearchReq, Page
 from app.api.dto.event_dto import CreateEventReq, ExtendedEvent
 from app.data.domains.event import Event
-from app.data.repositories.base_repository import T
 from app.data.repositories.event_repository import EventRepository
-from app.data.repositories.region_repository import RegionRepository
 from app.services.base_service import BaseService
 from app.services.region_service import RegionService
 from app.services.user_service import UserService
@@ -52,7 +51,6 @@ class EventService(BaseService[Event]):
 
         return list(disciplines)
 
-
     async def search(self, req: 'SearchReq') -> Page[ExtendedEvent]:
         page = await self._event_repository.search(req=req)
         extended_events = []
@@ -67,3 +65,42 @@ class EventService(BaseService[Event]):
             items=extended_events,
             more=page.more
         )
+
+    async def seeder(self, user_id: str, region_id: str) -> bool:
+        events = self.__stub_events(user_id, region_id)
+        for event in events:
+            await self.create(event)
+
+        return True
+
+    @staticmethod
+    def __stub_events(user_id: str, region_id: str) -> list[Event]:
+        return [
+            Event(
+                region_id=region_id,
+                name="Event One",
+                datetime=datetime.now(),
+                member_created_id=user_id,
+                discipline="Discipline A",
+                description="Description for Event One",
+                is_approved_event=False
+            ),
+            Event(
+                region_id=region_id,
+                name="Event Two",
+                datetime=datetime.now(),
+                member_created_id=user_id,
+                discipline="Discipline B",
+                description="Description for Event Two",
+                is_approved_event=True
+            ),
+            Event(
+                region_id=region_id,
+                name="Event Three",
+                datetime=datetime.now(),
+                member_created_id=user_id,
+                discipline="Discipline C",
+                description="Description for Event Three",
+                is_approved_event=False
+            )
+        ]
