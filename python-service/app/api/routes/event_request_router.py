@@ -32,6 +32,13 @@ async def get_by_id(
 ) -> Optional[EventRequest]:
     return await event_request_service.get(req_id)
 
+@router.get("/{event_id}/by-event-id", name="event-requests:get-by-event-id")
+async def get_by_event_id(
+        event_id: str,
+        event_request_service: Annotated[EventRequestService, Depends(EventRequestService)]
+) -> EventRequest:
+    return await event_request_service.get_by_event_id(event_id)
+
 # todo: only for MEMBER
 @router.post("/{event_id}/send_request", name="event-requests:send-request")
 async def send_request(
