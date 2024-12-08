@@ -28,6 +28,7 @@ export interface IEventDetail {
   readonly documents: readonly FileResponse[];
   readonly results: readonly FileResponse[];
   readonly request: IRequest | null;
+  readonly is_approved_event: boolean;
 }
 
 export interface IEventCreateRequest {

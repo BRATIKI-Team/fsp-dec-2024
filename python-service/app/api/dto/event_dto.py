@@ -30,3 +30,4 @@ class ExtendedEvent(BaseModel):
     protocols: List[FileModelDto]
     results: List[FileModelDto]
     request: Optional[EventRequest]
+    is_approved_event: bool

@@ -1,3 +1,8 @@
+export interface ICriterionBool {
+  readonly field: string;
+  readonly value: boolean;
+}
+
 export interface ICriterionString {
   readonly field: string;
   readonly value: string;
@@ -16,7 +21,8 @@ export interface ICriterionDateRange {
 export type ICriterion =
   | ICriterionString
   | ICriterionStrings
-  | ICriterionDateRange;
+  | ICriterionDateRange
+  | ICriterionBool;
 
 export interface ISearchRequest {
   readonly page: number;
