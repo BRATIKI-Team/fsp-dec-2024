@@ -14,7 +14,7 @@ const response_state = useState<readonly FileResponse[]>(
   () => []
 );
 
-const download_file = (file_id: string) => api.files.download(file_id);
+const download_file = (file_id: string) => api.statistics.download(file_id);
 
 const search = () => {
   if (loading.in_progress.value) {

@@ -1,14 +1,14 @@
 from io import BytesIO
-from typing import Annotated
+from typing import Annotated, List
 
+import pandas as pd
 from bson import Binary
 from fastapi import Depends, HTTPException, status
-import pandas as pd
 
 from app.data.domains.statistics_file import StatisticsFile
 from app.data.repositories.statistics_file_repository import StatisticsFileRepository
 from app.data.repositories.statistics_repository import StatisticsRepository
-from app.services.base_service import BaseService
+from app.services.base_service import BaseService, T
 from app.services.region_service import RegionService
 
 
@@ -45,14 +45,12 @@ class StatisticsFileService(BaseService[StatisticsFile]):
             })
 
         df = pd.DataFrame(data)
-        print(df)
         # Save the DataFrame to an Excel file in memory
         output = BytesIO()
         with pd.ExcelWriter(output) as writer:
             df.to_excel(writer, index=False, sheet_name=f"{year}_статистика")
         output.seek(0)
 
-        print(output.getvalue())
         stat_file = await self._statistics_file_repository.find_one({"file_name": f"{year}_статистика.xls"})
         if stat_file:
             await self._statistics_file_repository.delete(stat_file.id)
@@ -65,3 +63,6 @@ class StatisticsFileService(BaseService[StatisticsFile]):
 
         await self._statistics_file_repository.insert(stat_file)
         return True
+
+    async def get_all(self) -> List[T]:
+        return [stat.get_file_dto() for stat in await super().get_all()]

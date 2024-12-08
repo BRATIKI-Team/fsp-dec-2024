@@ -181,7 +181,7 @@ watch(
       :description="item.event.description"
       :price="event_date_range(item)"
       :features="event_features(item)"
-      :ui="{ amount: { price: 'text-xl' } }"
+      :ui="{ amount: { price: 'text-xl text-center' } }"
       orientation="horizontal" />
 
     <UCard class="text-center" v-if="response_state.items.length === 0"
