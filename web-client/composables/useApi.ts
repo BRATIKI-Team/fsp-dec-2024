@@ -235,6 +235,12 @@ export default () => {
           body: body,
           headers: helpers_api.AUTH_HEADERS(),
         }),
+      registerForAdmin: async (body: { email: string; password: string }) =>
+        $fetch<{ id: string }>(helpers_api.REQUEST_URL('/users/register-admin'), {
+          method: 'POST',
+          body: body,
+          headers: helpers_api.AUTH_HEADERS(),
+        }),
       reset: password_reset,
       forget: password_forget,
     },

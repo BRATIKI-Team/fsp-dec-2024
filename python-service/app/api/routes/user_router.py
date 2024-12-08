@@ -19,6 +19,13 @@ async def register(
     user_id = await auth_service.register(register_dto)
     return RegisterDto(id=user_id)
 
+@router.post("/register-admin", name="users:register")
+async def register(
+        register_dto: Annotated[RegisterReq, Body(...)],
+        auth_service: Annotated[AuthService, Depends(AuthService)]
+) -> RegisterDto:
+    user_id = await auth_service.registerForAdmin(register_dto)
+    return RegisterDto(id=user_id)
 
 @router.post("/login", name="users:login")
 async def login(

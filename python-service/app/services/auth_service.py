@@ -36,6 +36,16 @@ class AuthService:
         user_id = await self.user_service.create(new_user)
         return user_id
 
+    async def registerForAdmin(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> str:
+        user = await self.user_service.get_user_by_email(register_dto.email)
+        if user is not None:
+            raise ValueError("User with this email already exists")
+
+        hashed_pwd = self.pwd_context.hash(register_dto.password)
+        new_user = User(email=register_dto.email, password=hashed_pwd, role=role)
+        user_id = await self.user_service.create(new_user)
+        return user_id
+
     async def login(self, login_dto: LoginReq) -> LoginResp:
         user = await self.user_service.get_user_by_email(login_dto.email)
         if not user:

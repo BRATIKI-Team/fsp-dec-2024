@@ -45,7 +45,7 @@ async function onSubmit(data: FormSubmitEvent<Schema>) {
   loading.value = true;
   form.value!.clear();
   try {
-    const { id } = await api.auth.register({
+    const { id } = await api.auth.registerForAdmin({
       email: data.data.email,
       password: data.data.password,
     })
