@@ -127,6 +127,8 @@ class EventSeeder(BaseService[Event]):
                      'Продуктовое Программирование',
                      'Алгоритмическое Программирование'
                      ]),
+                documents_ids = [],
+                protocols_ids = [],
                 description=event_info.description,
                 is_approved_event=random.choice([True, False])
             )
