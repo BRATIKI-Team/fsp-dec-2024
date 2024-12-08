@@ -28,11 +28,13 @@ class EventSeeder(BaseService[Event]):
             self,
             event_repository: Annotated[EventRepository, Depends(EventRepository)],
             region_service: Annotated[RegionService, Depends(RegionService)],
-            file_model_service: Annotated[FileModelService, Depends(FileModelService)]
+            file_model_service: Annotated[FileModelService, Depends(FileModelService)],
+            file_parser_service: Annotated[FileParserService, Depends(FileParserService)]
     ):
         super().__init__(event_repository)
         self._region_service = region_service
         self._file_model_service = file_model_service
+        self._file_parser_service = file_parser_service
 
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
@@ -50,7 +52,7 @@ class EventSeeder(BaseService[Event]):
         return True
 
     async def generate_results_file(self, event_name: str, team_results: List[TeamResult]) -> str:
-        bytes_data = FileParserService.parse_to_results_file(team_results)
+        bytes_data = self._file_parser_service.parse_to_results_file(team_results)
         file_model = FileModel(
             file_name=f"{event_name}_results.xls",
             file_data=Binary(bytes_data.getvalue()),
