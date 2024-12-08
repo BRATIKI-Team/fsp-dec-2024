@@ -56,7 +56,7 @@ class EventSeeder(BaseService[Event]):
         file_model = FileModel(
             file_name=f"{event_name}_results.xls",
             file_data=Binary(bytes_data.getvalue()),
-            file_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            file_type="application/vnd.ms-excel",
             uploaded_at=datetime.now()
         )
 
