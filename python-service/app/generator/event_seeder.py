@@ -140,22 +140,25 @@ class EventSeeder(BaseService[Event]):
 
         team_results = []
         count_teams = random.randint(3, 30)
-        names = random.sample(names, count_teams)
+        selected_names = random.sample(names, count_teams)
 
         for i in range(count_teams):
             random_region_id = random.choice(regions).id
-            team_name = names[i]
+            team_name = selected_names[i]
+            team_rating = random.randint(0, 100)
 
             team_result = TeamResult(
                 name=team_name,
-                region_id=random_region_id
+                region_id=random_region_id,
+                rating=team_rating
             )
 
             team_results.append(team_result)
 
-        top_teams = random.sample(team_results, 3)
-        top_teams[0].place = TeamPlace.FIRST
-        top_teams[1].place = TeamPlace.SECOND
-        top_teams[2].place = TeamPlace.THIRD
+        team_results.sort(key=lambda x: x.rating, reverse=True)
+
+        team_results[0].place = TeamPlace.FIRST
+        team_results[1].place = TeamPlace.SECOND
+        team_results[2].place = TeamPlace.THIRD
 
         return team_results

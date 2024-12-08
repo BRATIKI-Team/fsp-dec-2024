@@ -12,4 +12,5 @@ class TeamPlace(str, Enum):
 class TeamResult(BaseModel):
     name: str
     region_id: str
+    rating: int
     place: Optional[TeamPlace] = None
