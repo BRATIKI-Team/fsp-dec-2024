@@ -37,7 +37,7 @@ class MailService:
         subject = f"Уведомление об изменении статуса Вашей заявки"
         message = MessageSchema(
             subject=subject,
-            recipients=["artush.baghdasaryan@mail.ru"],
+            recipients=[user_email],
             body=html_body,
             subtype=MessageType.html
         )

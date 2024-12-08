@@ -19,6 +19,7 @@ async def list_all(
 ) -> List[Event]:
     return await event_service.get_all()
 
+
 @router.get("/disciplines", name="events:disciplines")
 async def list_all(
         event_service: Annotated[EventService, Depends(EventService)]
@@ -36,6 +37,7 @@ async def get_by_id(
         await event_service.get(event_id)
     )
 
+
 @router.post("", name="events:create")
 async def create_event(
         user_id: Annotated[str, Depends(AuthService.require_user_id)],
@@ -52,17 +54,15 @@ async def search(
         event_mapper: Annotated[EventMapper, Depends(EventMapper)],
 ) -> Page[ExtendedEvent]:
     page = await event_service.search(page)
-    extended_events = []
-    for event in page.items:
-        extended_events.append(await event_mapper.map_event_to_extend(event))
 
     return Page(
         total=page.total,
         page=page.page,
         page_size=page.page_size,
-        items=extended_events,
+        items=await event_mapper.map_events_to_extend(page.items),
         more=page.more
     )
+
 
 @router.put("/{event_id}", name="events:update")
 async def update(
@@ -72,11 +72,12 @@ async def update(
 ) -> bool:
     return await event_service.update(event_id, updated_event)
 
+
 @router.post("/{event_id}/upload-result", name="events:upload-result")
 async def upload_result(
         event_id: str,
         file: Annotated[UploadFile, File(...)],
-        #require_member: Annotated[bool, Depends(AuthService.require_member)],
+        # require_member: Annotated[bool, Depends(AuthService.require_member)],
         event_service: Annotated[EventService, Depends(EventService)]
 ) -> str:
     return await event_service.upload_result(event_id, file)
