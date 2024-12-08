@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import Depends
 
@@ -44,3 +44,42 @@ class EventMapper:
             request=request,
             results=results
         )
+
+    async def map_events_to_extend(self, events: List[Event]) -> List[ExtendedEvent]:
+        """To avoid N+1"""
+        user_ids: List[str] = []
+        region_ids: List[str] = []
+        file_ids: List[str] = []
+
+        for event in events:
+            region_ids.append(event.region_id)
+            if event.member_created_id:
+                user_ids.append(event.member_created_id)
+            if event.documents_ids:
+                file_ids.append(*event.documents_ids)
+            if event.protocols_ids:
+                file_ids.append(*event.protocols_ids)
+            if event.result_file_id:
+                file_ids.append(event.result_file_id)
+
+        users = await self._user_service.get_many(user_ids)
+        regions = await self._region_service.get_many(region_ids)
+        files = await self._file_service.get_many(file_ids)
+
+        extended_events = []
+        for event in events:
+            request = await self._request_service.get_by_event_id(event.id)
+
+            extended_events.append(ExtendedEvent(
+                event=event,
+                region=next((region for region in regions if region.id == event.region_id), None),
+                user=next((user for user in users if user.id == event.member_created_id), None),
+                request=request,
+                documents=[file.get_dto() for file in files if
+                           file.id in (event.documents_ids if event.documents_ids else [])],
+                protocols=[file.get_dto() for file in files if
+                           file.id in (event.protocols_ids if event.protocols_ids else [])],
+                results=[file.get_dto() for file in files if file.id == event.result_file_id],
+            ))
+
+        return extended_events
