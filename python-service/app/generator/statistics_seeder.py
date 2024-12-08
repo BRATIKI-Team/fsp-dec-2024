@@ -2,8 +2,6 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from app.data.domains.statistics import Statistics
-from app.services.base_service import BaseService
 from app.services.event_service import EventService
 from app.statistics.statistics_file_service import StatisticsFileService
 from app.statistics.statistics_service import StatisticsService
@@ -21,9 +19,9 @@ class StatisticsSeeder:
         self._statistics_file_service = statistics_file_service
 
     async def seed(self) -> bool:
-        # events = await self._event_service.get_all()
-        # for event in events:
-        #     await self._statistics_service.on_event_result_added(event)
+        events = await self._event_service.get_all()
+        for event in events:
+            await self._statistics_service.on_event_result_added(event)
 
         await self._statistics_file_service.generate_statistics_excel_for_year(2022)
         await self._statistics_file_service.generate_statistics_excel_for_year(2023)

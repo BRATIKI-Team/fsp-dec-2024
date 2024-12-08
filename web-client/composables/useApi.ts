@@ -6,6 +6,7 @@ import type {
   IEventDetail,
 } from '~/types/dtos/event';
 import type { IEventRequest } from '~/types/dtos/event_request';
+import type { FileResponse } from '~/types/dtos/file';
 import type { IMemberRequest } from '~/types/dtos/member_request';
 import type { IRegion } from '~/types/dtos/region';
 import type {
@@ -13,12 +14,19 @@ import type {
   ResetPasswordRequest,
 } from '~/types/dtos/reset';
 import type { ISearchRequest, ISearchResponse } from '~/types/dtos/search';
-import { UserRole } from '~/types/dtos/user';
-import type { User } from 'next-auth';
 
 export default () => {
   const events_api = useEvents();
   const helpers_api = useHelpers();
+
+  const statistics_all = () =>
+    $fetch<readonly FileResponse[]>(
+      helpers_api.REQUEST_URL('/statistics/list-all'),
+      {
+        method: 'GET',
+        headers: helpers_api.AUTH_HEADERS(),
+      }
+    );
 
   const events_search = (request: ISearchRequest) =>
     $fetch<ISearchResponse<IEventDetail>>(
@@ -172,12 +180,15 @@ export default () => {
       find: region_by_id,
       update: region_update,
       assign: async (region: string, role: string, user: string) =>
-        $fetch<{id: string}>(helpers_api.REQUEST_URL(`/regions/${region}/assign-${role}/${user}`), {
-          method: 'POST',
-          headers: helpers_api.AUTH_HEADERS(),
-        }),
+        $fetch<{ id: string }>(
+          helpers_api.REQUEST_URL(`/regions/${region}/assign-${role}/${user}`),
+          {
+            method: 'POST',
+            headers: helpers_api.AUTH_HEADERS(),
+          }
+        ),
       create: async (data: any) =>
-        $fetch<{id: string}>(helpers_api.REQUEST_URL("/regions/create"), {
+        $fetch<{ id: string }>(helpers_api.REQUEST_URL('/regions/create'), {
           method: 'POST',
           body: data,
           headers: helpers_api.AUTH_HEADERS(),
@@ -195,8 +206,8 @@ export default () => {
       create: event_request_create,
     },
     auth: {
-      register: async (body: {email: string, password: string}) =>
-        $fetch<{id: string}>(helpers_api.REQUEST_URL('/users/register'), {
+      register: async (body: { email: string; password: string }) =>
+        $fetch<{ id: string }>(helpers_api.REQUEST_URL('/users/register'), {
           method: 'POST',
           body: body,
           headers: helpers_api.AUTH_HEADERS(),
@@ -206,6 +217,9 @@ export default () => {
     },
     files: {
       download: download_file,
+    },
+    statistics: {
+      all: statistics_all,
     },
   };
 };
