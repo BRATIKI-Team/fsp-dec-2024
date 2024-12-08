@@ -17,7 +17,12 @@ export default defineNuxtConfig({
     },
   },
   image: {
-    provider: 'none'
+    provider: 'none',
+  },
+  app: {
+    head: {
+      title: 'Управление ЕКП ФСП - BRATIKI',
+    },
   },
   auth: {
     isEnabled: true,

@@ -102,10 +102,7 @@ export default () => {
     });
 
   const download_file = (id: string) =>
-    $fetch<void>(helpers_api.REQUEST_URL(`/files/${id}/download`), {
-      method: 'GET',
-      headers: helpers_api.AUTH_HEADERS(),
-    });
+    window.open(helpers_api.REQUEST_URL(`/files/${id}/download`), '_blank');
 
   const member_reqs_change_status = (req: string, status: string) =>
     $fetch<readonly IMemberRequest[]>(
@@ -150,13 +147,16 @@ export default () => {
         }),
       find: event_by_id,
 
-      upload_result: async(id: string, file: any) => {
+      upload_result: async (id: string, file: any) => {
         const formData = new FormData();
         formData.append('file', file);
-        return await fetch(helpers_api.REQUEST_URL(`/events/${id}/upload-result`), {
-          method: 'POST',
-          body: formData,
-        });
+        return await fetch(
+          helpers_api.REQUEST_URL(`/events/${id}/upload-result`),
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
       },
       requests: {
         all: async () =>
@@ -182,13 +182,14 @@ export default () => {
             body: body,
             headers: helpers_api.AUTH_HEADERS(),
           }),
-        send: async (
-          req: string
-        ) =>
-          $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/send_request`), {
-            method: 'POST',
-            headers: helpers_api.AUTH_HEADERS(),
-          }),
+        send: async (req: string) =>
+          $fetch(
+            helpers_api.REQUEST_URL(`/event-requests/${req}/send_request`),
+            {
+              method: 'POST',
+              headers: helpers_api.AUTH_HEADERS(),
+            }
+          ),
       },
     },
     regions: {

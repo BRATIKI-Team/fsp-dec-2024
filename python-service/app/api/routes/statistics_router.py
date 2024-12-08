@@ -10,11 +10,13 @@ from app.statistics.statistics_file_service import StatisticsFileService
 
 router = APIRouter()
 
+
 @router.get("/list-all", name="statistics:list-all")
 async def list_all_statistics(
         statistics_file_service: Annotated[StatisticsFileService, Depends(StatisticsFileService)]
 ) -> List[StatisticsFile]:
     return await statistics_file_service.get_all()
+
 
 @router.get("/{file_id}/download", name="statistics:download")
 async def download(
@@ -35,6 +37,6 @@ async def download(
         file_data,
         media_type=file.file_type,
         headers={
-            "Content-Disposition": f"attachment; filename*=UTF-8''{transliterate(file.file_name)}"
+            "Content-Disposition": f"inline; filename*=UTF-8''{transliterate(file.file_name)}"
         }
     )

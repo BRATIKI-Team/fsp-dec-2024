@@ -45,9 +45,10 @@ async def download(
         file_data,
         media_type=file.file_type,
         headers={
-            "Content-Disposition": f"attachment; filename*=UTF-8''{transliterate(file.file_name)}"
+            "Content-Disposition": f"inline; filename*=UTF-8''{transliterate(file.file_name)}"
         }
     )
+
 
 @router.delete("/{file_id", name="files:delete-by-id")
 async def delete(
