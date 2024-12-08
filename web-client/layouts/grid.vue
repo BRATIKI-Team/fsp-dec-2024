@@ -1,7 +1,7 @@
 <template>
   <UHeader :links="links">
     <template #logo>
-      <NuxtImg class="h-8" src="header_logo.png" />
+      <NuxtImg class="h-8" src="/header_logo.png" />
     </template>
 
     <template #right>

@@ -16,6 +16,9 @@ export default defineNuxtConfig({
       faqUrl: process.env.FAQ_URL,
     },
   },
+  image: {
+    provider: 'none'
+  },
   auth: {
     isEnabled: true,
     baseURL: `${process.env.NUXT_BACKEND_URL}/users/`,

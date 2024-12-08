@@ -55,13 +55,29 @@ const notification = ref({
 const form = ref<Form<Schema>>();
 
 const loading = ref(false);
+const selectedFile = ref(null);
+// @ts-ignore
+const handleFileChange = (event) => {
+  const file = event[0];
+  selectedFile.value = file;
+};
+
+
+const sendEventRequest = async () => {
+  await api.events.requests.send(props?.event.id)
+  notification.value = {
+    show: true,
+    title: 'Успешно',
+    description: 'Вы успешно отправили заявку в ЕКП!',
+    icon: 'i-heroicons-check-circle !w-8 !h-8 text-green-500'
+  }
+  setTimeout(() => notification.value.show = false, 3000)
+}
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   loading.value = true;
   form.value!.clear();
   try {
-
-
     if (!props.event) {
       const res = await api.events.create({
         name: event.data.name,
@@ -94,6 +110,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         documents_ids: files.value.map(i => i.id),
         protocols_ids: protocols.value.map(i => i.id),
       });
+      await api.events.upload_result(props.event?.id, selectedFile.value)
       notification.value = {
         show: false,
         title: 'Успешно',
@@ -195,9 +212,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </div>
     </client-only>
 
+    <template v-if="!!props.event">
+      <h3 class="mb-3 text-lg font-bold">Результат в формате xml/csv</h3>
+      <UInput  @change="handleFileChange" type="file" size="sm" icon="i-heroicons-folder" class="mb-8" />
+    </template>
+
     <div class="flex items-center">
-      <UButton type="submit" :loading="loading" class="mr-4">Сохранить</UButton>
-      <!--      <UButton variant="secondary">Отправить в ЕКП</UButton>-->
+      <UButton  @change="e => console.log(e.target.files)" type="submit" :loading="loading" class="mr-4">Сохранить</UButton>
+      <UButton v-if="!!props.event" @click="sendEventRequest" variant="outline">Отправить в ЕКП</UButton>
 
     </div>
   </UForm>

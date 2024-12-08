@@ -141,6 +141,15 @@ export default () => {
           headers: helpers_api.AUTH_HEADERS(),
         }),
       find: event_by_id,
+
+      upload_result: async(id: string, file: any) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        return await fetch(helpers_api.REQUEST_URL(`/events/${id}/upload-result`), {
+          method: 'POST',
+          body: formData,
+        });
+      },
       requests: {
         all: async () =>
           $fetch<Array<IEventRequest>>(
@@ -163,6 +172,13 @@ export default () => {
           $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/set-status`), {
             method: 'POST',
             body: body,
+            headers: helpers_api.AUTH_HEADERS(),
+          }),
+        send: async (
+          req: string
+        ) =>
+          $fetch(helpers_api.REQUEST_URL(`/event-requests/${req}/send_request`), {
+            method: 'POST',
             headers: helpers_api.AUTH_HEADERS(),
           }),
       },

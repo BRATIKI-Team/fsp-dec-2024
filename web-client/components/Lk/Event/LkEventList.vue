@@ -49,7 +49,7 @@ const events = await useState(() => ({
   total: 0
 }));
 onMounted(async () => {
-  await updateState()
+  events.value = await updateState()
 })
 watch(page, async () => {
   events.value = await updateState()

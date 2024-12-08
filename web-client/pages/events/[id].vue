@@ -88,7 +88,7 @@ const download_file = (file_id: string) => api.files.download(file_id);
             <div class="flex flex-col">
               <UBadge
                 class="cursor-pointer hover:scale-[101%]"
-                v-for="file in data.results"
+                v-for="file in data.protocols"
                 size="lg"
                 @click="download_file(file.id)">
                 <div class="flex w-full justify-between">
@@ -108,7 +108,7 @@ const download_file = (file_id: string) => api.files.download(file_id);
             <div class="flex flex-col">
               <UBadge
                 class="cursor-pointer hover:scale-[101%]"
-                v-for="file in data.results"
+                v-for="file in data.documents"
                 size="lg"
                 @click="download_file(file.id)">
                 <div class="flex w-full justify-between">

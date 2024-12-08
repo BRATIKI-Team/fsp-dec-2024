@@ -74,7 +74,7 @@ async def update(
 ) -> bool:
     return await event_service.update(event_id, updated_event)
 
-@router.post("{event_id}/upload-result", name="events:upload-result")
+@router.post("/{event_id}/upload-result", name="events:upload-result")
 async def upload_result(
         event_id: str,
         file: Annotated[UploadFile, File(...)],
