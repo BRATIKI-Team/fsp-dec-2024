@@ -30,8 +30,6 @@ class EventRequestService(BaseService[EventRequest]):
             raise Exception("Event is not found")
 
         user = await self._user_service.get(event.member_created_id)
-        if user is None:
-            raise Exception("User is not found")
 
         match event_request.status:
             case EventRequestStatus.APPROVED:
@@ -39,10 +37,12 @@ class EventRequestService(BaseService[EventRequest]):
                 event.is_approved_event = True
                 updated = await self._event_service.update(event.id, event)
                 print(updated, event)
-                await self._mail_service.notify_about_declined_request(user.email, event, event_request)
+                if user is not None:
+                    await self._mail_service.notify_about_declined_request(user.email, event, event_request)
             case EventRequestStatus.DECLINED:
                 print("declined")
-                await self._mail_service.notify_about_declined_request(user.email, event, event_request)
+                if user is not None:
+                    await self._mail_service.notify_about_declined_request(user.email, event, event_request)
 
         return await super().update(request_id, event_request)
 
