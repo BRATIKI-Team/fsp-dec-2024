@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta
 from typing import Annotated, List
 
+from bson import Binary
 from fastapi import Depends
 from pydantic import BaseModel
 
@@ -40,13 +41,10 @@ class EventSeeder(BaseService[Event]):
         for region in regions:
             events = self.__seed_events(region.id, event_info_list)
 
-            count = 1
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
                 event.teams_results = teams_results
                 event.result_file_id = await self.generate_results_file(event.name, teams_results)
-                print(f"--count: {count} | {event.name}")
-                count += 1
                 await self.create(event)
 
         return True
@@ -55,7 +53,7 @@ class EventSeeder(BaseService[Event]):
         bytes_data = FileParserService.parse_to_results_file(team_results)
         file_model = FileModel(
             file_name=f"{event_name}_results.xls",
-            file_data=bytes_data.getvalue(),
+            file_data=Binary(bytes_data.getvalue()),
             file_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             uploaded_at=datetime.now()
         )
