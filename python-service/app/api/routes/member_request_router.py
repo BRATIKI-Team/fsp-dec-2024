@@ -42,7 +42,7 @@ async def send_request(
 async def set_status(
         req_id: str,
         status: MemberRequestStatus,
-        # require_admin: Annotated[bool, Depends(AuthService.require_admin)],
+        #require_admin: Annotated[bool, Depends(AuthService.require_admin)],
         member_request_service: Annotated[MemberRequestService, Depends(MemberRequestService)]
 ) -> bool:
     return await member_request_service.set_status(req_id, status)

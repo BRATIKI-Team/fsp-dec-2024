@@ -13,6 +13,7 @@ from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_M
 from app.data.domains.user import User
 from app.data.domains.user import UserRole
 from app.services.mail.mail_service import MailService
+from app.services.member_request_service import MemberRequestService
 from app.services.user_service import UserService
 
 
@@ -21,19 +22,22 @@ class AuthService:
             self,
             user_service: Annotated[UserService, Depends(UserService)],
             mail_service: Annotated[MailService, Depends(MailService)],
+            member_request_service: Annotated[MemberRequestService, Depends(MemberRequestService)]
     ):
-        self.user_service = user_service
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-        self.mail_service = mail_service
+        self._user_service = user_service
+        self._pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self._mail_service = mail_service
+        self._member_request_service = member_request_service
 
     async def register(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> str:
-        user = await self.user_service.get_user_by_email(register_dto.email)
+        user = await self._user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")
 
-        hashed_pwd = self.pwd_context.hash(register_dto.password)
+        hashed_pwd = self._pwd_context.hash(register_dto.password)
         new_user = User(email=register_dto.email, password=hashed_pwd, role=role)
-        user_id = await self.user_service.create(new_user)
+        user_id = await self._user_service.create(new_user)
+        await self._member_request_service.send_request(user_id, register_dto.region_id)
         return user_id
 
     async def registerForAdmin(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> str:
@@ -47,7 +51,7 @@ class AuthService:
         return user_id
 
     async def login(self, login_dto: LoginReq) -> LoginResp:
-        user = await self.user_service.get_user_by_email(login_dto.email)
+        user = await self._user_service.get_user_by_email(login_dto.email)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -55,6 +59,9 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
+        if user.role == UserRole.USER:
+            # As request to become member of region is not accepted, user can't log in to portal
+            return LoginResp(id=user.id, email=user.email, error="not-member")
         return self.complete_user_login(user)
 
     async def refresh_token(self, refresh_token_req: Annotated[RefreshTokenReq, Depends(RefreshTokenReq)]):
@@ -67,7 +74,7 @@ class AuthService:
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user = await self.user_service.get_user_by_email(user_email)
+        user = await self._user_service.get_user_by_email(user_email)
         if not User:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -92,7 +99,7 @@ class AuthService:
         )
 
     async def forget_password(self, req: ForgetPasswordReq) -> None:
-        user = await self.user_service.get_user_by_email(req.email)
+        user = await self._user_service.get_user_by_email(req.email)
 
         if user is None or user.id is None:
             raise HTTPException(
@@ -113,13 +120,13 @@ class AuthService:
 
         forget_url_link = f"{CLIENT_HOST}{RESET_PASSWORD_TOKEN_URL}/{token}"
 
-        await self.mail_service.notify_about_password_reset(user.email, forget_url_link)
+        await self._mail_service.notify_about_password_reset(user.email, forget_url_link)
 
     async def reset_password(self, req: ResetPasswordReq) -> None:
         email = jwt.decode(req.token, JWT_SECRET_KEY, algorithms=JWT_ALGORITHM).get("sub")
 
-        hashed_pwd = self.pwd_context.hash(req.password)
-        user = await self.user_service.get_user_by_email(email)
+        hashed_pwd = self._pwd_context.hash(req.password)
+        user = await self._user_service.get_user_by_email(email)
 
         if user is None or user.id is None:
             raise HTTPException(
@@ -129,7 +136,7 @@ class AuthService:
 
         user.password = hashed_pwd
 
-        await self.user_service.update(
+        await self._user_service.update(
             item_id=user.id,
             item=user
         )

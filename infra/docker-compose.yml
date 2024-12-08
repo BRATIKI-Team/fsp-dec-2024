@@ -1,19 +1,21 @@
 services:
   web:
-    build: 
-      context: ../web-client
+    build: ../web-client
     ports:
       - 80:3000
-  backend-service:
-    container_name: bratiki-backend
-    build: ../python-service
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ../python-service
+      network: host
     ports:
       - 8000:8000
     depends_on:
       - mongodb
 
   mongodb:
-    container_name: bratiki-mongodb
     image: mongo:8.0.1
     ports:
       - 27017:27017

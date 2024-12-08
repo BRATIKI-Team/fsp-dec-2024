@@ -50,7 +50,7 @@ async def download(
     )
 
 
-@router.delete("/{file_id", name="files:delete-by-id")
+@router.delete("/{file_id}", name="files:delete-by-id")
 async def delete(
         file_id: str,
         file_service: Annotated[FileModelService, Depends(FileModelService)]

@@ -10,9 +10,6 @@ from app.services.event_request_service import EventRequestService
 
 router = APIRouter()
 
-
-# todo: save all endpoints
-
 @router.get("/list-all", name="event-requests:list-all")
 async def list_all(
         require_super_admin: Annotated[bool, Depends(AuthService.require_super_admin)],
@@ -50,7 +47,6 @@ async def get_by_event_id(
     return await event_request_service.get_by_event_id(event_id)
 
 
-# todo: only for MEMBER
 @router.post("/{event_id}/send_request", name="event-requests:send-request")
 async def send_request(
         event_id: str,
@@ -59,7 +55,6 @@ async def send_request(
     return await event_request_service.send_event_request(event_id)
 
 
-# todo: save endpoint for only SUPER_ADMIN
 @router.post("/{req_id}/set-status", name="event-requests:set-status")
 async def set_status(
         req_id: str,

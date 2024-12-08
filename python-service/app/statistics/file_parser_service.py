@@ -62,7 +62,6 @@ class FileParserService:
             "Регион": "region",
             "Рейтинг": "points"
         }
-        print("data_frame", data_frame)
 
         data_frame = data_frame.rename(columns=column_mapping)
         print("data_frame", data_frame)
@@ -83,7 +82,12 @@ class FileParserService:
             elif idx == 2:
                 place = TeamPlace.THIRD
 
-            region = await self._region_service.get_by_subject(row["region"])
+            print("region", row["region"])
+            region = (await self._region_service.get_by_subject(row["region"])
+                      or await self._region_service.find_one({"name": row["region"]}))
+            if not region:
+                continue
+
             team_results.append(
                 TeamResult(
                     name=row["team"],
@@ -98,7 +102,7 @@ class FileParserService:
     @staticmethod
     async def __parse_excel_file(file: UploadFile) -> pd.DataFrame:
         data = await file.read()
-        return pd.read_excel(BytesIO(data), engine="xlrd")
+        return pd.read_excel(BytesIO(data))
 
     @staticmethod
     async def __parse_csv_file(file: UploadFile) -> pd.DataFrame:

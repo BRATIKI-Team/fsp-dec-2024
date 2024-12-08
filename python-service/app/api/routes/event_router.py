@@ -64,8 +64,6 @@ async def search(
         more=page.more
     )
 
-
-# todo: only for member
 @router.put("/{event_id}", name="events:update")
 async def update(
         event_id: str,

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr
 
 class RegisterDto(BaseModel):
@@ -5,6 +7,7 @@ class RegisterDto(BaseModel):
 
 class RegisterReq(BaseModel):
     email: EmailStr
+    region_id: str
     password: str
 
 
@@ -16,8 +19,9 @@ class LoginReq(BaseModel):
 class LoginResp(BaseModel):
     id: str
     email: EmailStr
-    token: str
-    refresh_token: str
+    token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    error: Optional[str] = None
 
 
 class ForgetPasswordReq(BaseModel):
