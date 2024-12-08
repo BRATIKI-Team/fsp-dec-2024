@@ -39,7 +39,7 @@ class FileParserService:
             data.append({
                 "Команда": team_result.name,
                 "Регион": region.name,
-                "Рейтинг": team_result.place.value if team_result.place else "",
+                "Рейтинг": team_result.rating,
             })
 
         df = pd.DataFrame(data)
