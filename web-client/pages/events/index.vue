@@ -7,11 +7,9 @@ import type {
   ISearchResponse,
 } from '~/types/dtos/search';
 import type { IEventDetail } from '~/types/dtos/event';
-import useLoading from '~/composables/useLoading';
 import useApi from '~/composables/useApi';
 import Autocomplete_disciplines from '~/components/autocomplete_disciplines.vue';
 import Autocomplete_regions from '~/components/autocomplete_regions.vue';
-import { EventRequestStatus } from '~/types/dtos/request';
 import type { Badge } from '#ui/types';
 import { format } from 'date-fns';
 
@@ -22,13 +20,14 @@ const loading = ref(false);
 const route = useRoute();
 
 const disciplines_filter = useState<string | undefined>(
-  'events_disciplines_filter',
+  'events_disciplines_filter'
 );
 const regions_filter = useState<string | undefined>('events_regions_filter');
 const range_filter = useState('events_range_filter', () => ({
   start: new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0),
   end: new Date(new Date().getFullYear(), 11, 31),
 }));
+const approved_filter = useState('events_approved_filter', () => false);
 
 const region_id = route.query.region?.toString();
 if (region_id) {
@@ -43,7 +42,7 @@ const response_state = useState<ISearchResponse<IEventDetail>>(
     page_size: 10,
     items: [],
     more: false,
-  }),
+  })
 );
 const request_state = useState<ISearchRequest>('events_request', () => ({
   page: 1,
@@ -72,23 +71,18 @@ const search = () => {
       loading.value = false;
     },
     () => {
-      loading.value = false
-    },
+      loading.value = false;
+    }
   );
 };
 
 const event_features = (item: IEventDetail) =>
   [item.region?.name, item.event.discipline].filter(
-    (x): x is string => x !== undefined,
+    (x): x is string => x !== undefined
   );
 
 const event_status = (item: IEventDetail): Badge | undefined => {
-  if (item.request === null) return undefined;
-
-  if (item.request.status === EventRequestStatus.PENDING) {
-    return { label: 'В обработке' };
-  }
-  if (item.request.status === EventRequestStatus.APPROVED) {
+  if (item.is_approved_event) {
     return { label: 'Включён в ЕКП' };
   }
 
@@ -105,25 +99,43 @@ const on_item_click = (item: IEventDetail) =>
   navigateTo(`/events/${item.event.id}`);
 
 watch(
-  () => [regions_filter.value, disciplines_filter.value, range_filter.value],
+  () => [
+    regions_filter.value,
+    disciplines_filter.value,
+    range_filter.value,
+    approved_filter.value,
+  ],
   () => {
     const criteria: readonly ICriterion[] = [
       ...[
+        ...[
+          {
+            field: 'regions',
+            value: [regions_filter.value],
+          },
+          {
+            field: 'disciplines',
+            value: [disciplines_filter.value],
+          },
+        ].filter(
+          (item): item is ICriterionStrings => !item.value.includes(undefined)
+        ),
         {
-          field: 'regions',
-          value: [regions_filter.value],
+          field: 'daterange',
+          value: {
+            start: range_filter.value.start,
+            end: range_filter.value.end,
+          },
         },
-        {
-          field: 'disciplines',
-          value: [disciplines_filter.value],
-        },
-      ].filter(
-        (item): item is ICriterionStrings => !item.value.includes(undefined),
-      ),
-      {
-        field: 'daterange',
-        value: { start: range_filter.value.start, end: range_filter.value.end },
-      },
+      ],
+      ...(approved_filter.value
+        ? [
+            {
+              field: 'ekp',
+              value: true,
+            },
+          ]
+        : []),
     ];
 
     request_state.value = {
@@ -142,7 +154,7 @@ watch(
 
     search();
   },
-  { immediate: true },
+  { immediate: true }
 );
 </script>
 
@@ -170,14 +182,18 @@ watch(
               <DatePicker v-model="range_filter" @close="close" />
             </template>
           </UPopover>
+          <div>
+            <UCheckbox
+              v-model="approved_filter"
+              label="События ЕКП"></UCheckbox>
+          </div>
         </div>
       </template>
     </UAccordion>
 
-    <UEventSkeleton  v-if="loading"/>
-    <UEventSkeleton  v-if="loading"/>
-    <UEventSkeleton  v-if="loading"/>
-
+    <UEventSkeleton v-if="loading" />
+    <UEventSkeleton v-if="loading" />
+    <UEventSkeleton v-if="loading" />
 
     <UPricingCard
       class="cursor-pointer hover:scale-[101%]"
@@ -191,10 +207,11 @@ watch(
       :ui="{ amount: { price: 'text-xl text-center' } }"
       orientation="horizontal" />
 
-    <UCard class="text-center" v-if="response_state.items.length === 0 && !loading"
-    >К сожалению, здесь ничего нет :( Попробуйте поменять фильтры.
+    <UCard
+      class="text-center"
+      v-if="response_state.items.length === 0 && !loading"
+      >К сожалению, здесь ничего нет :( Попробуйте поменять фильтры.
     </UCard>
-
 
     <UButton
       v-if="response_state.more"

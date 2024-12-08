@@ -42,7 +42,8 @@ class EventMapper:
             documents=documents,
             protocols=protocols,
             request=request,
-            results=results
+            results=results,
+            is_approved_event=event.is_approved_event
         )
 
     async def map_events_to_extend(self, events: List[Event]) -> List[ExtendedEvent]:
@@ -80,6 +81,7 @@ class EventMapper:
                 protocols=[file.get_dto() for file in files if
                            file.id in (event.protocols_ids if event.protocols_ids else [])],
                 results=[file.get_dto() for file in files if file.id == event.result_file_id],
+                is_approved_event=event.is_approved_event
             ))
 
         return extended_events

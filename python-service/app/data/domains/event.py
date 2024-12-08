@@ -24,7 +24,9 @@ class Event(BaseModel):
     teams_results: Optional[List[TeamResult]] = None
     is_approved_event: bool
 
+
 class EventFilter(str, Enum):
     regions = 'regions'
     disciplines = 'disciplines'
     daterange = 'daterange'
+    ekp = 'ekp'

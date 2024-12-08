@@ -71,6 +71,13 @@ def mongo_daterange_builder(field: str | None, value: Any) -> Mapping[str, Any]:
     raise Exception("Bad configuration of filters.")
 
 
+def mongo_bool_builder(field: str | None, value: Any) -> Mapping[str, Any]:
+    if isinstance(field, str) and isinstance(value, bool):
+        return {field: {"$eq": value}}
+
+    raise Exception("Bad configuration of filters.")
+
+
 def mongo_text_builder(field: str | None, value: Any) -> Mapping[str, Any]:
     if isinstance(field, str) and isinstance(value, str):
         return {field: {"$regex": value, '$options': 'i'}}
