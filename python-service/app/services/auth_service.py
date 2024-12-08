@@ -47,9 +47,9 @@ class AuthService:
         if user is not None:
             raise ValueError("User with this email already exists")
 
-        hashed_pwd = self.pwd_context.hash(register_dto.password)
+        hashed_pwd = self._pwd_context.hash(register_dto.password)
         new_user = User(email=register_dto.email, password=hashed_pwd, role=role)
-        user_id = await self.user_service.create(new_user)
+        user_id = await self._user_service.create(new_user)
         return user_id
 
     async def login(self, login_dto: LoginReq) -> LoginResp:
