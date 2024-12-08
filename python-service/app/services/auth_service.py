@@ -43,7 +43,7 @@ class AuthService:
         return user_id
 
     async def registerForAdmin(self, register_dto: RegisterAdminReq, role: UserRole = UserRole.USER) -> str:
-        user = await self.user_service.get_user_by_email(register_dto.email)
+        user = await self._user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")
 
