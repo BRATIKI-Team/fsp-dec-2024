@@ -20,9 +20,11 @@ class StatisticsSeeder:
 
     async def seed(self) -> bool:
         events = await self._event_service.get_all()
+        print("seeding events")
         for event in events:
             await self._statistics_service.on_event_result_added(event)
 
+        print("seeding files")
         await self._statistics_file_service.generate_statistics_excel_for_year(2022)
         await self._statistics_file_service.generate_statistics_excel_for_year(2023)
         await self._statistics_file_service.generate_statistics_excel_for_year(2024)

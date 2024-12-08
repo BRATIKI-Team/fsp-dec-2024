@@ -45,14 +45,12 @@ class StatisticsFileService(BaseService[StatisticsFile]):
             })
 
         df = pd.DataFrame(data)
-        print(df)
         # Save the DataFrame to an Excel file in memory
         output = BytesIO()
         with pd.ExcelWriter(output) as writer:
             df.to_excel(writer, index=False, sheet_name=f"{year}_статистика")
         output.seek(0)
 
-        print(output.getvalue())
         stat_file = await self._statistics_file_repository.find_one({"file_name": f"{year}_статистика.xls"})
         if stat_file:
             await self._statistics_file_repository.delete(stat_file.id)
