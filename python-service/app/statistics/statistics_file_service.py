@@ -1,10 +1,9 @@
 from io import BytesIO
 from typing import Annotated, List
 
+import pandas as pd
 from bson import Binary
 from fastapi import Depends, HTTPException, status
-import pandas as pd
-from watchfiles import awatch
 
 from app.data.domains.statistics_file import StatisticsFile
 from app.data.repositories.statistics_file_repository import StatisticsFileRepository
