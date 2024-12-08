@@ -104,6 +104,12 @@ export default () => {
   const download_file = (id: string) =>
     window.open(helpers_api.REQUEST_URL(`/files/${id}/download`), '_blank');
 
+  const download_statistics_file = (id: string) =>
+    window.open(
+      helpers_api.REQUEST_URL(`/statistics/${id}/download`),
+      '_blank'
+    );
+
   const member_reqs_change_status = (req: string, status: string) =>
     $fetch<readonly IMemberRequest[]>(
       helpers_api.REQUEST_URL(`/member-reqs/${req}/set-status/${status}`),
@@ -237,6 +243,7 @@ export default () => {
     },
     statistics: {
       all: statistics_all,
+      download: download_statistics_file,
     },
   };
 };
