@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta
 from typing import Annotated, List
 
+from bson import Binary
 from fastapi import Depends
 from pydantic import BaseModel
 
@@ -27,11 +28,13 @@ class EventSeeder(BaseService[Event]):
             self,
             event_repository: Annotated[EventRepository, Depends(EventRepository)],
             region_service: Annotated[RegionService, Depends(RegionService)],
-            file_model_service: Annotated[FileModelService, Depends(FileModelService)]
+            file_model_service: Annotated[FileModelService, Depends(FileModelService)],
+            file_parser_service: Annotated[FileParserService, Depends(FileParserService)]
     ):
         super().__init__(event_repository)
         self._region_service = region_service
         self._file_model_service = file_model_service
+        self._file_parser_service = file_parser_service
 
     async def seed(self) -> bool:
         regions = await self._region_service.get_all()
@@ -40,22 +43,19 @@ class EventSeeder(BaseService[Event]):
         for region in regions:
             events = self.__seed_events(region.id, event_info_list)
 
-            count = 1
             for event in events:
                 teams_results = self.__seed_teams_results(regions, names)
                 event.teams_results = teams_results
                 event.result_file_id = await self.generate_results_file(event.name, teams_results)
-                print(f"--count: {count} | {event.name}")
-                count += 1
                 await self.create(event)
 
         return True
 
     async def generate_results_file(self, event_name: str, team_results: List[TeamResult]) -> str:
-        bytes_data = FileParserService.parse_to_results_file(team_results)
+        bytes_data = self._file_parser_service.parse_to_results_file(team_results)
         file_model = FileModel(
             file_name=f"{event_name}_results.xls",
-            file_data=bytes_data.getvalue(),
+            file_data=Binary(bytes_data.getvalue()),
             file_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             uploaded_at=datetime.now()
         )

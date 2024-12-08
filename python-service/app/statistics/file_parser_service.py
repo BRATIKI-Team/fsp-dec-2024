@@ -32,16 +32,16 @@ class FileParserService:
                 detail="File type is not allowed",
             )
 
-    @staticmethod
-    def parse_to_results_file(team_results: List[TeamResult]) -> BytesIO:
-        data = [
-            {
+    async def parse_to_results_file(self, team_results: List[TeamResult]) -> BytesIO:
+        data = []
+        for team_result in team_results:
+            region = await self._region_service.get(team_result.region_id)
+            data.append({
                 "Команда": team_result.name,
-                "Регион": team_result.region_id,
+                "Регион": region.name,
                 "Рейтинг": team_result.place.value if team_result.place else "",
-            }
-            for team_result in team_results
-        ]
+            })
+
         df = pd.DataFrame(data)
 
         # Save the DataFrame to an Excel file in memory
