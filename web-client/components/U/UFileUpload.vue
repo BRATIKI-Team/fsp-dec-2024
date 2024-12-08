@@ -64,7 +64,8 @@ const uploadFile = async (file: UploadedFile, idx: number) => {
   formData.append('file', file.file);
 
   try {
-    const response = await fetch('http://localhost:8000/files/upload', {
+    const helpers_api = useHelpers();
+    const response = await fetch(helpers_api.REQUEST_URL('/files/upload'), {
       method: 'POST',
       body: formData,
     });
