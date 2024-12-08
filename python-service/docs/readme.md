@@ -1,3 +1,11 @@
+# FAQ
+Бэкенд-сервис, содержащий бизнес-логику приложения.
+
+# Стек
+- Python 3.12
+- FastAPI
+- MongoDB
+
 # API
 
 Смотри API документацию по [/docs].
@@ -28,6 +36,9 @@ pip install -r requirements.txt
 ```bash
 uvicorn app.main:app --reload
 ```
+
+# Setup for Production
+1. Сборка осуществляется с помощью [../Dockerfile].
 
 # For Developers
 
