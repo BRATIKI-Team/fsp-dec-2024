@@ -18,11 +18,11 @@ import { format } from 'date-fns';
 definePageMeta({ layout: 'grid' });
 
 const api = useApi();
-const loading = useLoading();
+const loading = ref(false);
 const route = useRoute();
 
 const disciplines_filter = useState<string | undefined>(
-  'events_disciplines_filter'
+  'events_disciplines_filter',
 );
 const regions_filter = useState<string | undefined>('events_regions_filter');
 const range_filter = useState('events_range_filter', () => ({
@@ -43,7 +43,7 @@ const response_state = useState<ISearchResponse<IEventDetail>>(
     page_size: 10,
     items: [],
     more: false,
-  })
+  }),
 );
 const request_state = useState<ISearchRequest>('events_request', () => ({
   page: 1,
@@ -52,11 +52,11 @@ const request_state = useState<ISearchRequest>('events_request', () => ({
 }));
 
 const search = () => {
-  if (loading.in_progress.value) {
+  if (loading.value) {
     return;
   }
 
-  loading.on_load_start();
+  loading.value = true;
 
   api.events.search(request_state.value).then(
     response => {
@@ -69,15 +69,17 @@ const search = () => {
         page: request_state.value.page + 1,
       };
 
-      loading.on_load_end();
+      loading.value = false;
     },
-    () => loading.on_error()
+    () => {
+      loading.value = false
+    },
   );
 };
 
 const event_features = (item: IEventDetail) =>
   [item.region?.name, item.event.discipline].filter(
-    (x): x is string => x !== undefined
+    (x): x is string => x !== undefined,
   );
 
 const event_status = (item: IEventDetail): Badge | undefined => {
@@ -116,7 +118,7 @@ watch(
           value: [disciplines_filter.value],
         },
       ].filter(
-        (item): item is ICriterionStrings => !item.value.includes(undefined)
+        (item): item is ICriterionStrings => !item.value.includes(undefined),
       ),
       {
         field: 'daterange',
@@ -140,7 +142,7 @@ watch(
 
     search();
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 
@@ -172,6 +174,11 @@ watch(
       </template>
     </UAccordion>
 
+    <UEventSkeleton  v-if="loading"/>
+    <UEventSkeleton  v-if="loading"/>
+    <UEventSkeleton  v-if="loading"/>
+
+
     <UPricingCard
       class="cursor-pointer hover:scale-[101%]"
       v-for="item in response_state.items"
@@ -184,14 +191,15 @@ watch(
       :ui="{ amount: { price: 'text-xl text-center' } }"
       orientation="horizontal" />
 
-    <UCard class="text-center" v-if="response_state.items.length === 0"
-      >К сожалению, здесь ничего нет :( Попробуйте поменять фильтры.
+    <UCard class="text-center" v-if="response_state.items.length === 0 && !loading"
+    >К сожалению, здесь ничего нет :( Попробуйте поменять фильтры.
     </UCard>
+
 
     <UButton
       v-if="response_state.more"
       v-on:click="search()"
-      :loading="loading.in_progress.value"
+      :loading="loading"
       loading-icon="i-heroicons-arrow-path"
       label="Загрузить ещё..."
       variant="outline"
