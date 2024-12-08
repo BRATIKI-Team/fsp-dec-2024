@@ -88,7 +88,8 @@ class FileParserService:
                 TeamResult(
                     name=row["team"],
                     region_id=region.id,
-                    place=place
+                    place=place,
+                    rating=row["points"]
                 )
             )
 

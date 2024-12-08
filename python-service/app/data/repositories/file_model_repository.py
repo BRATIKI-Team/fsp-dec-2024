@@ -15,5 +15,4 @@ class FileRepository(BaseRepository):
 
     def serialize(self, document: Dict) -> FileModel:
         document["file_data"] = Binary(document["file_data"])
-        print(document["file_data"])
         return FileModel(**document)

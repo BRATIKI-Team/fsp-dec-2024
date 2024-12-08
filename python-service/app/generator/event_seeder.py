@@ -52,7 +52,7 @@ class EventSeeder(BaseService[Event]):
         return True
 
     async def generate_results_file(self, event_name: str, team_results: List[TeamResult]) -> str:
-        bytes_data = self._file_parser_service.parse_to_results_file(team_results)
+        bytes_data = await self._file_parser_service.parse_to_results_file(team_results)
         file_model = FileModel(
             file_name=f"{event_name}_results.xls",
             file_data=Binary(bytes_data.getvalue()),
