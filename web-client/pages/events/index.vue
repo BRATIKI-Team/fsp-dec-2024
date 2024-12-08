@@ -94,7 +94,7 @@ const event_status = (item: IEventDetail): Badge | undefined => {
 };
 
 const event_date_range = (item: IEventDetail): string =>
-  `${item.event.start_date.toLocaleDateString()} - ${item.event.end_date.toLocaleDateString()}`;
+  `${item.event.start_date.toLocaleDateString()} ${item.event.end_date.toLocaleDateString()}`;
 
 const date_range = (range: { start: Date; end: Date }) =>
   format(range.start, 'dd.MM.yyyy') + ' - ' + format(range.end, 'dd.MM.yyyy');
