@@ -1,5 +1,6 @@
 from typing import Annotated, Dict
 
+from bson import Binary
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -12,5 +13,6 @@ class StatisticsFileRepository(BaseRepository):
     def __init__(self, db: Annotated[AsyncIOMotorDatabase, Depends(get_db)]):
         super().__init__(db, "statistics_files")
 
-    def serialize(self, document: Dict) -> T:
+    def serialize(self, document: Dict) -> StatisticsFile:
+        document["file_data"] = Binary(document["file_data"])
         return StatisticsFile(**document)

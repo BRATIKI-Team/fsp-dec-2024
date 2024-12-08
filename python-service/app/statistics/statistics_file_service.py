@@ -1,6 +1,7 @@
 from io import BytesIO
 from typing import Annotated
 
+from bson import Binary
 from fastapi import Depends, HTTPException, status
 import pandas as pd
 
@@ -59,7 +60,7 @@ class StatisticsFileService(BaseService[StatisticsFile]):
         stat_file = StatisticsFile(
             file_name=f"{year}_статистика.xls",
             file_type="application/vnd.ms-excel",
-            file_data=output.getvalue()
+            file_data=Binary(output.getvalue())
         )
 
         await self._statistics_file_repository.insert(stat_file)

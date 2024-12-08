@@ -25,5 +25,4 @@ class FileModelService(BaseService[FileModel]):
             file_type=file.content_type,
             uploaded_at=datetime.now()
         )
-
         return await self._file_repository.insert(upload_file)
