@@ -10,6 +10,7 @@ const config_api = useConfig();
 
 const loading = ref(false);
 const error = ref(false);
+const error423 = ref(false);
 
 const fields = [
   {
@@ -53,12 +54,18 @@ const onSubmit = async (data: {
   if (!validate(data)) return;
 
   error.value = false;
+  error423.value = false;
   loading.value = true;
   try {
     await auth_api.signIn(data, { callbackUrl: '/lk' });
-  } catch (_) {
+  } catch (err) {
     error.value = true;
     loading.value = false;
+
+    // @ts-ignore
+    if (err.response.status === 423) {
+      error423.value = true;
+    }
   }
 };
 </script>
@@ -86,7 +93,11 @@ const onSubmit = async (data: {
         v-if="error"
         color="red"
         icon="i-heroicons-information-circle-20-solid"
-        title="Что-то пошло не так. Проверьте данные." />
+        :title="
+          error423
+            ? 'Пользователь ещё не подтверждён.'
+            : 'Что-то пошло не так. Проверьте данные.'
+        " />
     </template>
 
     <template #password-hint>

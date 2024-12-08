@@ -6,6 +6,7 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
+from starlette.status import HTTP_423_LOCKED
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq, \
     RegisterAdminReq
@@ -61,8 +62,8 @@ class AuthService:
             )
 
         if user.role == UserRole.USER:
-            # As request to become member of region is not accepted, user can't log in to portal
-            return LoginResp(id=user.id, email=user.email, error="not-member")
+            raise HTTPException(status_code=HTTP_423_LOCKED)
+        
         return self.complete_user_login(user)
 
     async def refresh_token(self, refresh_token_req: Annotated[RefreshTokenReq, Depends(RefreshTokenReq)]):
