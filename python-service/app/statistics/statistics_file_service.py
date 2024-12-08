@@ -1,14 +1,15 @@
 from io import BytesIO
-from typing import Annotated
+from typing import Annotated, List
 
 from bson import Binary
 from fastapi import Depends, HTTPException, status
 import pandas as pd
+from watchfiles import awatch
 
 from app.data.domains.statistics_file import StatisticsFile
 from app.data.repositories.statistics_file_repository import StatisticsFileRepository
 from app.data.repositories.statistics_repository import StatisticsRepository
-from app.services.base_service import BaseService
+from app.services.base_service import BaseService, T
 from app.services.region_service import RegionService
 
 
@@ -63,3 +64,6 @@ class StatisticsFileService(BaseService[StatisticsFile]):
 
         await self._statistics_file_repository.insert(stat_file)
         return True
+
+    async def get_all(self) -> List[T]:
+        return [stat.get_file_dto() for stat in await super().get_all()]
