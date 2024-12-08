@@ -7,7 +7,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq
+from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq, \
+    RegisterAdminReq
 from app.core.config import JWT_SECRET_KEY, JWT_ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, RESET_PASSWORD_TOKEN_URL, \
     RESET_PASSWORD_TOKEN_EXPIRE_MINUTES, CLIENT_HOST
 from app.data.domains.user import User
@@ -40,7 +41,7 @@ class AuthService:
         await self._member_request_service.send_request(user_id, register_dto.region_id)
         return user_id
 
-    async def registerForAdmin(self, register_dto: RegisterReq, role: UserRole = UserRole.USER) -> str:
+    async def registerForAdmin(self, register_dto: RegisterAdminReq, role: UserRole = UserRole.USER) -> str:
         user = await self.user_service.get_user_by_email(register_dto.email)
         if user is not None:
             raise ValueError("User with this email already exists")

@@ -5,6 +5,9 @@ from pydantic import BaseModel, EmailStr
 class RegisterDto(BaseModel):
     id: str
 
+class RegisterAdminReq(BaseModel):
+    email: EmailStr
+    password: str
 class RegisterReq(BaseModel):
     email: EmailStr
     region_id: str

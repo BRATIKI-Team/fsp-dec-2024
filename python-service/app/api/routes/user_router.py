@@ -3,7 +3,7 @@ from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, Body
 
 from app.api.dto import RegisterReq, LoginReq, LoginResp, RefreshTokenReq, ForgetPasswordReq, ResetPasswordReq, \
-    RegisterDto
+    RegisterDto, RegisterAdminReq
 from app.api.dto.user_dto import UserDto
 from app.services.auth_service import AuthService
 from app.services.user_service import UserService
@@ -19,9 +19,9 @@ async def register(
     user_id = await auth_service.register(register_dto)
     return RegisterDto(id=user_id)
 
-@router.post("/register-admin", name="users:register")
-async def register(
-        register_dto: Annotated[RegisterReq, Body(...)],
+@router.post("/register-admin", name="users:register-admin")
+async def register_admin(
+        register_dto: Annotated[RegisterAdminReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
 ) -> RegisterDto:
     user_id = await auth_service.registerForAdmin(register_dto)
