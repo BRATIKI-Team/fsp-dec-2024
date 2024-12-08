@@ -5,11 +5,25 @@ import useConfig from '~/composables/useConfig';
 
 definePageMeta({ layout: 'auth' });
 
-const auth_api = useAuth();
+const api = useApi();
 const config_api = useConfig();
 
 const loading = ref(false);
 const error = ref(false);
+const isModalOpen = ref(false);
+
+const state = ref<{ readonly email: string; readonly password: string } | null>(
+  null
+);
+
+const res = await api.regions.all();
+
+const options = res.map(i => ({
+  id: i.id,
+  label: i.subject,
+}));
+
+const region = ref(options[0]);
 
 const fields = [
   {
@@ -46,24 +60,61 @@ const errors = (state: {
   return [];
 };
 
-const onSubmit = (data: {
+const onFormSubmit = (data: {
   readonly email: string | null;
   readonly password: string | null;
 }) => {
   if (!validate(data)) return;
 
+  state.value = data;
+  isModalOpen.value = true;
+};
+
+const onModalSubmit = () => {
+  if (state.value === null) return;
+
+  loading.value = false;
   error.value = false;
-  loading.value = true;
-  try {
-    auth_api.signUp(data, { callbackUrl: '/auth/sign_in' });
-  } catch (_) {
-    loading.value = false;
-    error.value = true;
-  }
+
+  api.auth
+    .register({
+      ...state.value,
+      region_id: region.value.id,
+    })
+    .then(
+      () => {
+        loading.value = false;
+        error.value = false;
+
+        navigateTo('/auth/sign_in');
+      },
+      () => {
+        loading.value = false;
+        error.value = true;
+      }
+    );
 };
 </script>
 
 <template>
+  <UModal v-model="isModalOpen">
+    <UCard>
+      <div class="flex flex-col gap-4">
+        <span>Ещё всего один шаг! Укажите Ваш регион.</span>
+
+        <USelectMenu
+          class="w-full"
+          v-model="region"
+          searchable
+          searchable-placeholder="Выберите регион..."
+          placeholder="Выберите регион"
+          :options="options" />
+
+        <UButton block @click="onModalSubmit" label="Подтвердить" />
+      </div>
+    </UCard>
+  </UModal>
+
   <UAuthForm
     :submit-button="{ label: 'Продолжить' }"
     :fields="fields"
@@ -73,7 +124,7 @@ const onSubmit = (data: {
     align="top"
     icon="i-heroicons-lock-open"
     :ui="{ base: 'text-center', footer: 'text-center' }"
-    @submit="onSubmit">
+    @submit="onFormSubmit">
     <template #description>
       Уже есть аккаунт?
       <NuxtLink class="text-primary font-medium" to="/auth/sign_in"
