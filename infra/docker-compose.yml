@@ -1,4 +1,12 @@
 services:
+  backend-service:
+    container_name: bratiki-backend
+    build: ../python-service
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongodb
+
   mongodb:
     container_name: bratiki-mongodb
     image: mongo:8.0.1
