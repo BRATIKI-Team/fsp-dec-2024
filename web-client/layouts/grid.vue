@@ -65,5 +65,10 @@ const links = [
     icon: 'i-heroicons-user-group',
     to: '/regions',
   },
+  {
+    label: 'Статистика',
+    icon: 'i-heroicons-presentation-chart-bar',
+    to: '/statistics',
+  },
 ];
 </script>

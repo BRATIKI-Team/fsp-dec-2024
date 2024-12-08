@@ -92,7 +92,8 @@ class EventService(BaseService[Event]):
             )
 
         file_id = await self._file_service.upload_file(file)
-        team_results = await self._file_parser_service.parse_from_results_file(file_id)
+        await file.seek(0)
+        team_results = await self._file_parser_service.parse_from_results_file(file)
         event.result_file_id = file_id
         event.teams_results = team_results
 

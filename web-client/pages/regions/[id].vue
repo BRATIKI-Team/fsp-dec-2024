@@ -46,7 +46,7 @@ const go_back = () => router.back();
           {{ data.name }}
         </div>
 
-        <div class="mt-8 flex flex-col gap-4">
+        <div class="mt-4 flex flex-col gap-4">
           <div>Контакты:</div>
           <div class="flex items-center gap-4" v-if="data.contacts.phone">
             <UIcon class="h-8 w-8" name="i-heroicons-phone" />
@@ -59,7 +59,7 @@ const go_back = () => router.back();
         </div>
 
         <NuxtLink
-          class="mt-8 flex flex-col gap-4 underline"
+          class="mt-4 flex flex-col gap-4 underline"
           :href="'/events?region=' + data.id"
           >Все события
         </NuxtLink>

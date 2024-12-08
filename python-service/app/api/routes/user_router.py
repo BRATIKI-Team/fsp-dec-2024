@@ -16,8 +16,8 @@ async def register(
         register_dto: Annotated[RegisterReq, Body(...)],
         auth_service: Annotated[AuthService, Depends(AuthService)]
 ) -> RegisterDto:
-    id = await auth_service.register(register_dto)
-    return RegisterDto(id=id)
+    user_id = await auth_service.register(register_dto)
+    return RegisterDto(id=user_id)
 
 
 @router.post("/login", name="users:login")
@@ -81,12 +81,3 @@ async def delete_by_id(
         user_service: Annotated[UserService, Depends(UserService)]
 ) -> bool:
     return await user_service.delete(user_id)
-
-
-# this endpoint is protected, it injects user_id using JWT token
-# if token is not provided then 401 will be thrown
-@router.get("/protected", name="users:protected-endpoint")
-def protected(
-        user_id: Annotated[str, Depends(AuthService.require_user_id)]
-) -> bool:
-    return True

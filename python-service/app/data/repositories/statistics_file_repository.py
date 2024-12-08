@@ -5,15 +5,14 @@ from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.core.dependencies import get_db
-from app.data.domains.file_model import FileModel
-from app.data.repositories.base_repository import BaseRepository
+from app.data.domains.statistics_file import StatisticsFile
+from app.data.repositories.base_repository import BaseRepository, T
 
 
-class FileRepository(BaseRepository):
+class StatisticsFileRepository(BaseRepository):
     def __init__(self, db: Annotated[AsyncIOMotorDatabase, Depends(get_db)]):
-        super().__init__(db, "files")
+        super().__init__(db, "statistics_files")
 
-    def serialize(self, document: Dict) -> FileModel:
+    def serialize(self, document: Dict) -> StatisticsFile:
         document["file_data"] = Binary(document["file_data"])
-        print(document["file_data"])
-        return FileModel(**document)
+        return StatisticsFile(**document)
